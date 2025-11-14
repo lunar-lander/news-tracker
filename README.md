@@ -6,9 +6,10 @@ Building Data-Driven Social Consciousness Through Time-Series News Analysis
 
 ### Prerequisites
 - Docker and Docker Compose
+- Node.js 18+ (for frontend development)
 - At least one LLM API key (Google/OpenAI/Anthropic)
 
-### Setup
+### Backend Setup
 
 1. **Clone and navigate to the project:**
    ```bash
@@ -21,21 +22,45 @@ Building Data-Driven Social Consciousness Through Time-Series News Analysis
    # Edit .env and add your LLM API key (at least GOOGLE_API_KEY)
    ```
 
-3. **Start the services:**
+3. **Start backend services (PostgreSQL + FastAPI):**
    ```bash
    make dev
    ```
 
-4. **In another terminal, fetch RSS feeds:**
+4. **In another terminal, run the processing pipeline:**
    ```bash
-   make cron-fetch
+   make cron-fetch      # Fetch RSS feeds
+   make cron-scrape     # Scrape article content
+   make cron-classify   # Classify with LLM
    ```
 
 5. **Check the API:**
    ```bash
    curl http://localhost:8000
-   curl http://localhost:8000/health
+   curl http://localhost:8000/api/v1/events
    ```
+
+### Frontend Setup
+
+1. **Navigate to frontend directory:**
+   ```bash
+   cd frontend
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Start development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open dashboard:**
+   - Frontend: http://localhost:5173
+   - Backend API: http://localhost:8000
+   - API Docs: http://localhost:8000/docs
 
 ## 📚 Project Structure
 
