@@ -8,12 +8,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.database import get_db, init_db, close_db
+from app.api.v1 import router as api_v1_router
 
 app = FastAPI(
     title="India News Tracker API",
     description="API for tracking and analyzing news incidents across India",
     version="0.1.0",
 )
+
+# Include API routes
+app.include_router(api_v1_router)
 
 # CORS middleware
 app.add_middleware(
@@ -64,13 +68,3 @@ async def health_check(db: AsyncSession = Depends(get_db)):
             "database": "disconnected",
             "error": str(e),
         }
-
-
-# TODO: Add API routes
-# - GET /api/v1/events
-# - GET /api/v1/events/:id
-# - GET /api/v1/analytics/timeseries
-# - GET /api/v1/analytics/geographic
-# - GET /api/v1/search
-# - GET /api/v1/config/tags
-# - GET /api/v1/config/sources
