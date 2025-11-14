@@ -1,0 +1,400 @@
+# Filters Configuration for India News Tracker
+# Last Updated: 2025-11-14
+#
+# Controls what content is processed and displayed
+
+# ============================================================================
+# CONTENT FILTERING
+# ============================================================================
+
+content_filtering:
+  # Minimum confidence score to store classification
+  min_confidence_score: 0.7  # 70% confidence
+
+  # Article length filters
+  article_length:
+    min_words: 100  # Skip very short articles
+    max_words: 10000  # Skip extremely long articles (likely not news)
+
+  # Article age (for processing backlog)
+  article_age:
+    max_age_days: 90  # Don't process articles older than 90 days
+    skip_future_dates: true  # Skip articles with future publish dates
+
+  # Language filtering
+  language:
+    enabled: true
+    accepted_languages:
+      - english
+      - hindi
+      - tamil
+      - telugu
+      - malayalam
+      - kannada
+      - marathi
+      - gujarati
+      - bengali
+      - punjabi
+      - urdu
+      - odia
+      - assamese
+    auto_detect: true
+    min_detection_confidence: 0.6
+
+# ============================================================================
+# TAG FILTERING
+# ============================================================================
+
+tag_filtering:
+  # Minimum number of tags required
+  min_tags: 1
+  max_tags: 10
+
+  # Tag confidence thresholds
+  tag_confidence:
+    accept_above: 0.7  # Accept tags with >70% confidence
+    flag_below: 0.5    # Flag for manual review if <50%
+    reject_below: 0.3  # Reject tags with <30% confidence
+
+  # Required tag types
+  require_at_least_one:
+    - category  # Must have at least one category tag (murder, corruption, etc.)
+
+  # Excluded combinations (some combinations don't make sense)
+  excluded_combinations: []
+
+# ============================================================================
+# SEVERITY FILTERING
+# ============================================================================
+
+severity_filtering:
+  enabled: true
+
+  # Minimum severity to display
+  min_severity_level: "low"  # Options: low, medium, high, critical
+
+  # Auto-escalate severity based on certain conditions
+  auto_escalate:
+    enabled: true
+    conditions:
+      - condition: "multiple_deaths"
+        threshold: 3
+        escalate_to: "critical"
+
+      - condition: "child_victim"
+        escalate_to: "high"
+
+      - condition: "mass_casualty"
+        threshold: 10
+        escalate_to: "critical"
+
+# ============================================================================
+# GEOGRAPHIC FILTERING
+# ============================================================================
+
+geographic_filtering:
+  enabled: true
+
+  # Include/exclude specific regions
+  regions:
+    enabled_states: "all"  # Or list specific states
+    excluded_states: []
+
+    enabled_cities: "all"  # Or list specific cities
+    excluded_cities: []
+
+  # Rural/Urban classification
+  classify_rural_urban: true
+
+# ============================================================================
+# SOURCE FILTERING
+# ============================================================================
+
+source_filtering:
+  enabled: true
+
+  # Trusted sources (higher weight)
+  trusted_sources:
+    - "Times of India"
+    - "The Hindu"
+    - "Indian Express"
+    - "NDTV"
+    - "Hindustan Times"
+    - "PTI"
+    - "ANI"
+
+  # Blocked sources (if any)
+  blocked_sources: []
+
+  # Source reliability scores (optional)
+  source_reliability:
+    enabled: false
+    min_reliability_score: 0.5
+
+# ============================================================================
+# DEDUPLICATION
+# ============================================================================
+
+deduplication:
+  enabled: true
+
+  # Similarity detection
+  similarity:
+    algorithm: "text_hash"  # Options: text_hash, embeddings, fuzzy
+    threshold: 0.85  # 85% similarity = duplicate
+
+  # Time window for deduplication
+  time_window:
+    hours: 24  # Check for duplicates within 24 hours
+
+  # Deduplication strategy
+  strategy: "keep_first"  # Options: keep_first, keep_best_source, merge
+
+  # Fields to compare
+  compare_fields:
+    - headline
+    - url
+    - published_at
+
+  # Cross-language deduplication
+  cross_language: false  # Disabled for MVP
+
+# ============================================================================
+# SPAM/QUALITY FILTERING
+# ============================================================================
+
+quality_filtering:
+  enabled: true
+
+  # Spam detection
+  spam_detection:
+    enabled: true
+    check_excessive_caps: true
+    check_excessive_punctuation: true
+    check_promotional_keywords: true
+
+    # Spam keywords
+    spam_keywords:
+      - "click here"
+      - "limited offer"
+      - "buy now"
+      - "subscribe now"
+      - "exclusive deal"
+
+  # Quality checks
+  quality_checks:
+    min_headline_length: 10  # characters
+    max_headline_length: 300
+    check_valid_url: true
+    check_valid_date: true
+
+  # Content quality signals
+  quality_signals:
+    has_author: 0.2  # +20% confidence if author present
+    from_trusted_source: 0.3  # +30% if from trusted source
+    multiple_sources: 0.2  # +20% if confirmed by multiple sources
+
+# ============================================================================
+# EXCLUSION RULES
+# ============================================================================
+
+exclusion_rules:
+  # Exclude by keywords (from tags.yaml)
+  use_exclusion_keywords: true
+
+  # Exclude by category
+  excluded_categories:
+    - entertainment
+    - sports_general
+    - technology_reviews
+    - lifestyle
+    - astrology
+    - recipes
+
+  # Exclude by domain patterns
+  excluded_domains:
+    - "*.bollywood*"
+    - "*.entertainment*"
+    - "*.sports*"
+    - "*.lifestyle*"
+    - "*.fashion*"
+    - "*.recipes*"
+
+  # Exclude by URL patterns
+  excluded_url_patterns:
+    - "/entertainment/"
+    - "/sports/"
+    - "/lifestyle/"
+    - "/fashion/"
+    - "/movies/"
+    - "/celebrity/"
+    - "/horoscope/"
+    - "/astrology/"
+
+# ============================================================================
+# RATE LIMITING (for API/frontend)
+# ============================================================================
+
+rate_limiting:
+  enabled: true
+
+  # API rate limits
+  api:
+    requests_per_minute: 60
+    requests_per_hour: 1000
+    requests_per_day: 10000
+
+  # Per-IP rate limits
+  per_ip:
+    requests_per_minute: 30
+    requests_per_hour: 500
+
+# ============================================================================
+# CACHING
+# ============================================================================
+
+caching:
+  enabled: true
+
+  # Cache durations
+  durations:
+    news_events: 300  # 5 minutes
+    analytics: 600  # 10 minutes
+    timeseries: 300  # 5 minutes
+    config: 3600  # 1 hour
+
+  # Cache invalidation
+  invalidation:
+    on_new_data: true
+    on_config_change: true
+
+# ============================================================================
+# ARCHIVAL POLICY
+# ============================================================================
+
+archival:
+  enabled: true
+
+  # Archive old data
+  archive_after_days: 730  # 2 years
+
+  # Delete very old data
+  delete_after_days: 1825  # 5 years
+
+  # Compressed storage
+  compress_archived: true
+
+  # Keep summary statistics forever
+  keep_statistics: true
+
+# ============================================================================
+# MANUAL REVIEW QUEUE
+# ============================================================================
+
+manual_review:
+  enabled: true
+
+  # Trigger manual review if:
+  triggers:
+    low_confidence: 0.5  # <50% confidence
+    no_tags_assigned: true
+    controversial_content: true
+    multiple_failed_attempts: true
+
+  # Queue settings
+  queue:
+    max_size: 1000
+    priority_order: "severity_desc"  # highest severity first
+
+# ============================================================================
+# DATA RETENTION
+# ============================================================================
+
+data_retention:
+  # Raw RSS entries
+  rss_entries:
+    keep_days: 365
+
+  # Scraped articles
+  articles:
+    keep_days: 730  # 2 years
+
+  # Classifications
+  classifications:
+    keep_days: 1825  # 5 years
+
+  # News events (denormalized)
+  news_events:
+    keep_days: 1825  # 5 years
+
+  # Logs
+  logs:
+    keep_days: 90
+
+  # Metrics
+  metrics:
+    keep_days: 365
+
+# ============================================================================
+# PERFORMANCE OPTIMIZATIONS
+# ============================================================================
+
+performance:
+  # Batch processing
+  batch_processing:
+    enabled: true
+    batch_size: 100  # Process 100 items at once
+
+  # Parallel processing
+  parallel_processing:
+    enabled: true
+    max_workers: 4  # CPU cores
+
+  # Query optimizations
+  query_optimizations:
+    use_indexes: true
+    limit_default_results: 100
+    enable_query_cache: true
+
+# ============================================================================
+# MONITORING & ALERTS
+# ============================================================================
+
+monitoring:
+  # Track filter statistics
+  track_statistics: true
+
+  # Alert conditions
+  alerts:
+    high_rejection_rate:
+      threshold: 0.5  # 50% rejection rate
+      action: "notify"
+
+    low_classification_rate:
+      threshold: 0.7  # <70% successfully classified
+      action: "notify"
+
+    queue_buildup:
+      threshold: 1000  # >1000 items in queue
+      action: "notify"
+
+# ============================================================================
+# EXPERIMENTAL FEATURES
+# ============================================================================
+
+experimental:
+  # AI-based quality scoring
+  ai_quality_scoring:
+    enabled: false
+
+  # Sentiment analysis
+  sentiment_analysis:
+    enabled: false
+
+  # Entity linking
+  entity_linking:
+    enabled: false
+
+  # Fact-checking
+  fact_checking:
+    enabled: false

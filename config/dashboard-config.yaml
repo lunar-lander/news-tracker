@@ -1,0 +1,341 @@
+# Dashboard Configuration for India News Tracker
+# Last Updated: 2025-11-14
+#
+# Controls dashboard appearance, behavior, and features
+
+# ============================================================================
+# GENERAL SETTINGS
+# ============================================================================
+
+general:
+  app_name: "India News Tracker"
+  tagline: "Building Data-Driven Social Consciousness"
+  default_timeframe: "30d"  # days
+
+  # Tile sizing algorithm
+  tile_sizing:
+    algorithm: "volume_weighted"  # Options: volume_weighted, equal, severity_weighted
+    min_tile_size: 1  # Minimum size units
+    max_tile_size: 4  # Maximum size units
+    recalculate_interval: 3600  # seconds (1 hour)
+
+# ============================================================================
+# THEME - PURE BLACK MODE
+# ============================================================================
+
+theme:
+  mode: "pure_black"
+
+  # Colors
+  colors:
+    # Base colors
+    background: "#000000"  # Pure black, not grey!
+    text_primary: "#FFFFFF"
+    text_secondary: "#CCCCCC"
+    text_muted: "#888888"
+
+    # Accent colors (vibrant for readability on black)
+    primary: "#FF6B6B"       # Red - for important alerts
+    secondary: "#4ECDC4"     # Cyan - for secondary actions
+    success: "#95E1D3"       # Mint - for positive indicators
+    warning: "#FFD93D"       # Yellow - for warnings
+    danger: "#F38181"        # Pink-red - for critical alerts
+    info: "#6C5CE7"          # Purple - for info
+
+    # Chart colors (vibrant, high contrast)
+    chart_palette:
+      - "#FF6B6B"  # Red
+      - "#4ECDC4"  # Cyan
+      - "#FFD93D"  # Yellow
+      - "#95E1D3"  # Mint
+      - "#FF9F43"  # Orange
+      - "#A29BFE"  # Light purple
+      - "#00D2D3"  # Turquoise
+      - "#FF6348"  # Coral
+      - "#70A1FF"  # Light blue
+      - "#5F27CD"  # Purple
+
+    # Tile backgrounds (slightly lighter than pure black for distinction)
+    tile_background: "#0A0A0A"
+    tile_hover: "#151515"
+    tile_border: "#222222"
+
+    # UI elements
+    border: "#333333"
+    hover: "#1A1A1A"
+    active: "#252525"
+
+  # Typography
+  typography:
+    font_family: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+    heading_font: "'Inter', sans-serif"
+
+    sizes:
+      xs: "0.75rem"
+      sm: "0.875rem"
+      base: "1rem"
+      lg: "1.125rem"
+      xl: "1.25rem"
+      "2xl": "1.5rem"
+      "3xl": "1.875rem"
+      "4xl": "2.25rem"
+
+# ============================================================================
+# VISUALIZATION SETTINGS
+# ============================================================================
+
+visualizations:
+  # Default chart type
+  default_chart_type: "line"  # Options: line, bar, area
+
+  # Chart.js configuration
+  chartjs:
+    animation_enabled: true
+    animation_duration: 750  # milliseconds
+
+    # Chart options
+    options:
+      responsive: true
+      maintainAspectRatio: false
+
+      # Scales
+      scales:
+        x:
+          grid:
+            display: true
+            color: "#222222"
+          ticks:
+            color: "#CCCCCC"
+        y:
+          grid:
+            display: true
+            color: "#222222"
+          ticks:
+            color: "#CCCCCC"
+
+      # Tooltips
+      tooltips:
+        enabled: true
+        mode: "index"
+        intersect: false
+        backgroundColor: "#1A1A1A"
+        titleColor: "#FFFFFF"
+        bodyColor: "#CCCCCC"
+        borderColor: "#333333"
+        borderWidth: 1
+
+      # Legend
+      legend:
+        display: true
+        position: "bottom"
+        labels:
+          color: "#FFFFFF"
+          usePointStyle: true
+
+  # Color schemes for different categories
+  color_scheme: "vibrant_on_black"
+
+  # Mini charts (in tiles)
+  mini_charts:
+    height: 80  # pixels
+    show_axes: false
+    show_tooltip: false
+    line_width: 2
+
+# ============================================================================
+# FEATURES
+# ============================================================================
+
+features:
+  # Search
+  search:
+    enabled: true
+    search_type: "headline"  # Options: headline, full_text
+    min_query_length: 3
+    debounce_delay: 300  # milliseconds
+
+  # i18n headline support
+  i18n_headlines:
+    enabled: true
+    show_original: true  # Show original language headline
+    show_translation: false  # Don't auto-translate (for now)
+    supported_languages:
+      - hindi
+      - english
+      - tamil
+      - telugu
+      - malayalam
+      - kannada
+      - marathi
+      - gujarati
+      - bengali
+
+  # Filters
+  filters:
+    enabled: true
+    persistent: true  # Remember filter choices
+    available_filters:
+      - date_range
+      - tags
+      - state
+      - severity
+      - source
+
+  # Export (disabled for MVP)
+  export:
+    enabled: false
+    formats: []
+
+  # Sharing (disabled for MVP)
+  sharing:
+    enabled: false
+
+  # Alerts (disabled for MVP)
+  alerts:
+    enabled: false
+
+# ============================================================================
+# LAYOUT CONFIGURATION
+# ============================================================================
+
+layout:
+  # Header
+  header:
+    height: "64px"
+    show_logo: true
+    show_search: true
+    show_date_selector: true
+    show_settings: true
+
+  # Sidebar
+  sidebar:
+    width: "400px"
+    position: "right"
+    show_on: "click"  # Options: click, hover
+    animation: "slide"  # Options: slide, fade
+
+  # Main grid
+  grid:
+    type: "masonry"  # Options: masonry, grid
+    columns:
+      mobile: 1
+      tablet: 2
+      desktop: 3
+      wide: 4
+    gap: "16px"
+    padding: "24px"
+
+  # Tiles
+  tiles:
+    min_height: "200px"
+    padding: "16px"
+    border_radius: "8px"
+    show_trend_indicator: true
+    show_mini_chart: true
+
+# ============================================================================
+# PERFORMANCE
+# ============================================================================
+
+performance:
+  # Data loading
+  data_points_limit: 1000  # per chart
+  lazy_loading: true
+  virtual_scrolling: true  # For long lists
+
+  # Caching
+  cache_duration: 300  # seconds (5 minutes)
+  cache_api_responses: true
+
+  # Updates
+  auto_refresh: false
+  refresh_interval: 300  # seconds (5 minutes)
+
+# ============================================================================
+# DATE RANGE PRESETS
+# ============================================================================
+
+date_range_presets:
+  - label: "Today"
+    value: "1d"
+
+  - label: "Last 7 Days"
+    value: "7d"
+
+  - label: "Last 30 Days"
+    value: "30d"
+    default: true
+
+  - label: "Last 90 Days"
+    value: "90d"
+
+  - label: "Last 6 Months"
+    value: "180d"
+
+  - label: "Last Year"
+    value: "365d"
+
+  - label: "All Time"
+    value: "all"
+
+  - label: "Custom"
+    value: "custom"
+
+# ============================================================================
+# ANALYTICS PAGE
+# ============================================================================
+
+analytics:
+  enabled: true
+
+  available_views:
+    - timeseries
+    - geographic
+    - correlation
+    - trending
+
+  # Geographic view
+  geographic:
+    view_type: "bar_chart"  # Options: bar_chart, map
+    group_by: "state"  # Options: state, city
+
+  # Correlation matrix
+  correlation:
+    max_tags: 20  # Show top 20 tags
+    min_correlation: 0.3  # 30% correlation threshold
+
+  # Trending
+  trending:
+    timeframe: "7d"  # Compare to last 7 days
+    min_increase: 1.5  # 50% increase to be "trending"
+
+# ============================================================================
+# RESPONSIVE BREAKPOINTS
+# ============================================================================
+
+responsive:
+  breakpoints:
+    mobile: "640px"
+    tablet: "768px"
+    desktop: "1024px"
+    wide: "1280px"
+    ultrawide: "1536px"
+
+# ============================================================================
+# ACCESSIBILITY
+# ============================================================================
+
+accessibility:
+  high_contrast_mode: false
+  keyboard_navigation: true
+  screen_reader_support: true
+  focus_indicators: true
+
+# ============================================================================
+# DEVELOPER OPTIONS
+# ============================================================================
+
+developer:
+  show_debug_info: false
+  show_api_latency: false
+  console_logging: false

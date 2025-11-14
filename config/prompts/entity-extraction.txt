@@ -1,0 +1,59 @@
+You are an entity extraction system for news articles. Extract key entities from the given article.
+
+ARTICLE:
+---
+{article_text}
+---
+
+Extract the following entities and provide them in JSON format:
+
+{{
+  "persons": [
+    {{
+      "name": "Full Name",
+      "role": "victim/accused/witness/official/other",
+      "mentions": 3
+    }}
+  ],
+  "organizations": [
+    {{
+      "name": "Organization Name",
+      "type": "police/government/company/ngo/other",
+      "mentions": 2
+    }}
+  ],
+  "locations": [
+    {{
+      "name": "Location Name",
+      "type": "city/district/state/landmark",
+      "state": "State Name if applicable"
+    }}
+  ],
+  "dates": [
+    {{
+      "date": "YYYY-MM-DD",
+      "type": "incident/arrest/court/other",
+      "description": "brief context"
+    }}
+  ],
+  "amounts": [
+    {{
+      "value": 1000000,
+      "currency": "INR/USD",
+      "context": "bribe/scam/theft/other"
+    }}
+  ]
+}}
+
+GUIDELINES:
+- Extract full names, not just first names
+- Identify the role of each person (victim, accused, police officer, etc.)
+- Extract all relevant organizations (police stations, companies, NGOs, etc.)
+- Include all location mentions with their hierarchy (city -> district -> state)
+- Extract specific dates mentioned in the article
+- Extract monetary amounts if mentioned (bribes, stolen money, scam amounts, etc.)
+- Use proper capitalization for names
+- Include only entities explicitly mentioned in the article
+- Return empty arrays [] for entity types not found
+
+OUTPUT ONLY VALID JSON.

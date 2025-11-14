@@ -1,0 +1,264 @@
+# LLM Configuration for India News Tracker
+# Last Updated: 2025-11-14
+#
+# Supports multiple LLM providers with fallback options
+# Configure your preferred provider and model here
+
+# ============================================================================
+# PRIMARY LLM CONFIGURATION
+# ============================================================================
+
+primary:
+  provider: "gemini"  # Options: openai, anthropic, google, cohere, local
+  model: "gemini-1.5-flash"  # Fast and cheap for classification
+  api_key: "${GOOGLE_API_KEY}"  # From environment variable
+  max_tokens: 2048
+  temperature: 0.2  # Low temperature for consistent classification
+
+  # Rate limiting
+  rate_limits:
+    requests_per_minute: 60
+    concurrent_requests: 10
+
+  # Retry policy
+  retry_policy:
+    max_retries: 3
+    backoff_factor: 2  # Exponential backoff: 2s, 4s, 8s
+    retry_on:
+      - rate_limit_error
+      - timeout
+      - service_unavailable
+
+# ============================================================================
+# FALLBACK LLM CONFIGURATION
+# ============================================================================
+
+fallback:
+  provider: "anthropic"
+  model: "claude-3-haiku-20240307"  # Cheap and fast
+  api_key: "${ANTHROPIC_API_KEY}"
+  max_tokens: 2048
+  temperature: 0.2
+
+  rate_limits:
+    requests_per_minute: 50
+    concurrent_requests: 5
+
+  retry_policy:
+    max_retries: 2
+    backoff_factor: 2
+
+# ============================================================================
+# ALTERNATIVE LLM OPTIONS (commented out)
+# ============================================================================
+
+# OpenAI Configuration
+openai:
+  provider: "openai"
+  model: "gpt-3.5-turbo"  # or "gpt-4" for better accuracy
+  api_key: "${OPENAI_API_KEY}"
+  max_tokens: 2048
+  temperature: 0.2
+
+  rate_limits:
+    requests_per_minute: 60
+    concurrent_requests: 10
+
+  retry_policy:
+    max_retries: 3
+    backoff_factor: 2
+
+# Anthropic Configuration
+anthropic:
+  provider: "anthropic"
+  models:
+    cheap: "claude-3-haiku-20240307"
+    balanced: "claude-3-sonnet-20240229"
+    best: "claude-3-opus-20240229"
+  api_key: "${ANTHROPIC_API_KEY}"
+  max_tokens: 2048
+  temperature: 0.2
+
+  rate_limits:
+    requests_per_minute: 50
+    concurrent_requests: 5
+
+# Google Gemini Configuration
+google:
+  provider: "google"
+  models:
+    cheap: "gemini-1.5-flash"
+    balanced: "gemini-1.5-pro"
+  api_key: "${GOOGLE_API_KEY}"
+  max_tokens: 2048
+  temperature: 0.2
+
+  rate_limits:
+    requests_per_minute: 60
+    concurrent_requests: 15
+
+# Cohere Configuration
+cohere:
+  provider: "cohere"
+  model: "command-r-plus"
+  api_key: "${COHERE_API_KEY}"
+  max_tokens: 2048
+  temperature: 0.2
+
+  rate_limits:
+    requests_per_minute: 40
+    concurrent_requests: 10
+
+# Local Model Configuration (Ollama)
+local:
+  provider: "local"
+  model: "llama3"  # or "mistral", "mixtral"
+  api_url: "http://localhost:11434"  # Ollama default
+  max_tokens: 2048
+  temperature: 0.2
+
+  rate_limits:
+    requests_per_minute: 1000  # No external rate limit
+    concurrent_requests: 4  # Based on local GPU
+
+# ============================================================================
+# PROMPT CONFIGURATION
+# ============================================================================
+
+prompts:
+  classification:
+    template_file: "config/prompts/classification.txt"
+    variables:
+      - article_text
+      - available_tags
+      - state_list
+
+  entity_extraction:
+    template_file: "config/prompts/entity-extraction.txt"
+    variables:
+      - article_text
+
+  summarization:
+    template_file: "config/prompts/summarization.txt"
+    variables:
+      - article_text
+      - max_sentences
+
+# ============================================================================
+# BATCH PROCESSING
+# ============================================================================
+
+batch_processing:
+  enabled: true
+  batch_size: 10  # Process 10 articles at once
+  wait_between_batches: 2  # seconds
+
+  # Cost optimization
+  cost_optimization:
+    cache_responses: true  # Cache LLM responses in database
+    cache_duration: 2592000  # 30 days in seconds
+    skip_similar_articles: true  # Skip if very similar article already classified
+    similarity_threshold: 0.95  # 95% similarity
+
+# ============================================================================
+# RESPONSE PARSING
+# ============================================================================
+
+response_parsing:
+  format: "json"  # Expect JSON response from LLM
+
+  required_fields:
+    - tags
+    - confidence_scores
+    - summary
+    - severity
+
+  optional_fields:
+    - state
+    - city
+    - incident_date
+    - persons
+    - organizations
+
+  validation:
+    min_confidence: 0.5  # Minimum confidence score to accept a tag
+    max_tags: 10  # Maximum tags per article
+    min_tags: 1  # Minimum tags per article
+
+# ============================================================================
+# ERROR HANDLING
+# ============================================================================
+
+error_handling:
+  on_parse_error: "retry"  # Options: retry, skip, manual_review
+  on_low_confidence: "flag"  # Options: flag, skip, manual_review
+  on_no_tags: "skip"  # Options: skip, retry, manual_review
+
+  logging:
+    log_all_requests: false  # Set to true for debugging
+    log_failed_requests: true
+    log_low_confidence: true
+    log_file: "logs/llm-classification.log"
+
+# ============================================================================
+# COST TRACKING
+# ============================================================================
+
+cost_tracking:
+  enabled: true
+
+  # Costs per 1M tokens (approximate, update as needed)
+  pricing:
+    openai:
+      gpt-3.5-turbo:
+        input: 0.50  # USD per 1M input tokens
+        output: 1.50  # USD per 1M output tokens
+      gpt-4:
+        input: 30.00
+        output: 60.00
+
+    anthropic:
+      claude-3-haiku:
+        input: 0.25
+        output: 1.25
+      claude-3-sonnet:
+        input: 3.00
+        output: 15.00
+      claude-3-opus:
+        input: 15.00
+        output: 75.00
+
+    google:
+      gemini-1.5-flash:
+        input: 0.075  # Cheapest!
+        output: 0.30
+      gemini-1.5-pro:
+        input: 1.25
+        output: 5.00
+
+    cohere:
+      command-r-plus:
+        input: 3.00
+        output: 15.00
+
+  # Budget alerts
+  budget:
+    daily_limit: 10.00  # USD
+    monthly_limit: 200.00  # USD
+    alert_threshold: 0.80  # Alert at 80% of limit
+
+# ============================================================================
+# PERFORMANCE MONITORING
+# ============================================================================
+
+monitoring:
+  track_latency: true
+  track_success_rate: true
+  track_token_usage: true
+
+  metrics_log_file: "logs/llm-metrics.log"
+
+  alerts:
+    high_latency_threshold: 10  # seconds
+    low_success_rate_threshold: 0.85  # 85%
+    high_cost_per_article: 0.10  # USD

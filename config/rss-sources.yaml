@@ -1,0 +1,1121 @@
+# RSS Feed Sources for India News Tracker
+# Last Updated: 2025-11-14
+#
+# Categories:
+# - national: Major national news outlets
+# - regional: State/region-specific outlets
+# - language: Non-English language outlets
+# - agency: News agencies
+#
+# Priority levels:
+# - high: Check every 5 minutes
+# - medium: Check every 10 minutes
+# - low: Check every 30 minutes
+
+# ============================================================================
+# NATIONAL NEWS OUTLETS (ENGLISH)
+# ============================================================================
+
+national_english:
+  - name: "Times of India"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/-2128936835.cms"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 300
+    enabled: true
+    priority: "high"
+
+  - name: "Times of India - India News"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/1898055.cms"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 300
+    enabled: true
+    priority: "high"
+
+  - name: "The Hindu"
+    url: "https://www.thehindu.com/news/national/feeder/default.rss"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 300
+    enabled: true
+    priority: "high"
+
+  - name: "The Hindu - Cities"
+    url: "https://www.thehindu.com/news/cities/feeder/default.rss"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 300
+    enabled: true
+    priority: "high"
+
+  - name: "Indian Express"
+    url: "https://indianexpress.com/feed/"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 300
+    enabled: true
+    priority: "high"
+
+  - name: "Indian Express - India News"
+    url: "https://indianexpress.com/section/india/feed/"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 300
+    enabled: true
+    priority: "high"
+
+  - name: "NDTV"
+    url: "https://feeds.feedburner.com/ndtvnews-india-news"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 300
+    enabled: true
+    priority: "high"
+
+  - name: "NDTV - India"
+    url: "https://feeds.feedburner.com/ndtv-latest"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 300
+    enabled: true
+    priority: "high"
+
+  - name: "Hindustan Times"
+    url: "https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 300
+    enabled: true
+    priority: "high"
+
+  - name: "Hindustan Times - Cities"
+    url: "https://www.hindustantimes.com/feeds/rss/cities/rssfeed.xml"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 300
+    enabled: true
+    priority: "high"
+
+  - name: "The Telegraph India"
+    url: "https://www.telegraphindia.com/rss/news"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "Deccan Herald"
+    url: "https://www.deccanherald.com/rss/national.rss"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "The Wire"
+    url: "https://thewire.in/feed"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "Scroll.in"
+    url: "https://scroll.in/feeds/latest.rss"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "The Quint"
+    url: "https://www.thequint.com/feed"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "India Today"
+    url: "https://www.indiatoday.in/rss/home"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 300
+    enabled: true
+    priority: "high"
+
+  - name: "India Today - India"
+    url: "https://www.indiatoday.in/rss/1206514"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 300
+    enabled: true
+    priority: "high"
+
+  - name: "News18"
+    url: "https://www.news18.com/rss/india.xml"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "Firstpost"
+    url: "https://www.firstpost.com/rss/india.xml"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "The Print"
+    url: "https://theprint.in/feed/"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "ThePrint - India"
+    url: "https://theprint.in/category/india/feed/"
+    category: "national"
+    language: "english"
+    region: "national"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+# ============================================================================
+# NEWS AGENCIES
+# ============================================================================
+
+news_agencies:
+  - name: "PTI (Press Trust of India)"
+    url: "https://www.ptinews.com/rss/nation.xml"
+    category: "agency"
+    language: "english"
+    region: "national"
+    refresh_interval: 300
+    enabled: true
+    priority: "high"
+
+  - name: "ANI (Asian News International)"
+    url: "https://www.aninews.in/feed/"
+    category: "agency"
+    language: "english"
+    region: "national"
+    refresh_interval: 300
+    enabled: true
+    priority: "high"
+
+# ============================================================================
+# HINDI LANGUAGE NEWS
+# ============================================================================
+
+hindi_news:
+  - name: "Dainik Bhaskar"
+    url: "https://www.bhaskar.com/rss-feed/1061/"
+    category: "language"
+    language: "hindi"
+    region: "national"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Amar Ujala"
+    url: "https://www.amarujala.com/rss/india-news.xml"
+    category: "language"
+    language: "hindi"
+    region: "national"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Dainik Jagran"
+    url: "https://www.jagran.com/rss/news-national.xml"
+    category: "language"
+    language: "hindi"
+    region: "national"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Navbharat Times"
+    url: "https://navbharattimes.indiatimes.com/rssfeedsdefault.cms"
+    category: "language"
+    language: "hindi"
+    region: "national"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "BBC Hindi"
+    url: "https://feeds.bbci.co.uk/hindi/rss.xml"
+    category: "language"
+    language: "hindi"
+    region: "national"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "Patrika"
+    url: "https://www.patrika.com/rss/india-news.xml"
+    category: "language"
+    language: "hindi"
+    region: "national"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "Jansatta"
+    url: "https://www.jansatta.com/rss/national-news/"
+    category: "language"
+    language: "hindi"
+    region: "national"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "Prabhat Khabar"
+    url: "https://www.prabhatkhabar.com/rss/national"
+    category: "language"
+    language: "hindi"
+    region: "national"
+    refresh_interval: 600
+    enabled: true
+    priority: "low"
+
+# ============================================================================
+# STATE-SPECIFIC NEWS - NORTH INDIA
+# ============================================================================
+
+north_india:
+  # Delhi NCR
+  - name: "Times of India - Delhi"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/1353972.cms"
+    category: "regional"
+    language: "english"
+    region: "delhi"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Hindustan Times - Delhi"
+    url: "https://www.hindustantimes.com/feeds/rss/delhi-news/rssfeed.xml"
+    category: "regional"
+    language: "english"
+    region: "delhi"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Indian Express - Delhi"
+    url: "https://indianexpress.com/section/cities/delhi/feed/"
+    category: "regional"
+    language: "english"
+    region: "delhi"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "NDTV - Delhi"
+    url: "https://feeds.feedburner.com/ndtv-delhi"
+    category: "regional"
+    language: "english"
+    region: "delhi"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  # Uttar Pradesh
+  - name: "Times of India - Lucknow"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/2887181.cms"
+    category: "regional"
+    language: "english"
+    region: "uttar_pradesh"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Times of India - Noida"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/2647166.cms"
+    category: "regional"
+    language: "english"
+    region: "uttar_pradesh"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "Times of India - Varanasi"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/5217492.cms"
+    category: "regional"
+    language: "english"
+    region: "uttar_pradesh"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "Hindustan Times - Lucknow"
+    url: "https://www.hindustantimes.com/feeds/rss/lucknow-news/rssfeed.xml"
+    category: "regional"
+    language: "english"
+    region: "uttar_pradesh"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Amar Ujala - UP"
+    url: "https://www.amarujala.com/rss/uttar-pradesh.xml"
+    category: "regional"
+    language: "hindi"
+    region: "uttar_pradesh"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  # Punjab
+  - name: "Times of India - Chandigarh"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/6547154.cms"
+    category: "regional"
+    language: "english"
+    region: "punjab"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "Tribune India - Punjab"
+    url: "https://www.tribuneindia.com/rss/punjab"
+    category: "regional"
+    language: "english"
+    region: "punjab"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Indian Express - Chandigarh"
+    url: "https://indianexpress.com/section/cities/chandigarh/feed/"
+    category: "regional"
+    language: "english"
+    region: "punjab"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  # Haryana
+  - name: "Times of India - Gurgaon"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/2647163.cms"
+    category: "regional"
+    language: "english"
+    region: "haryana"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "Tribune India - Haryana"
+    url: "https://www.tribuneindia.com/rss/haryana"
+    category: "regional"
+    language: "english"
+    region: "haryana"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  # Rajasthan
+  - name: "Times of India - Jaipur"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/3948306.cms"
+    category: "regional"
+    language: "english"
+    region: "rajasthan"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "Dainik Bhaskar - Rajasthan"
+    url: "https://www.bhaskar.com/rss-feed/1133/"
+    category: "regional"
+    language: "hindi"
+    region: "rajasthan"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Patrika - Rajasthan"
+    url: "https://www.patrika.com/rss/rajasthan-news.xml"
+    category: "regional"
+    language: "hindi"
+    region: "rajasthan"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  # Uttarakhand
+  - name: "Times of India - Dehradun"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/6547157.cms"
+    category: "regional"
+    language: "english"
+    region: "uttarakhand"
+    refresh_interval: 600
+    enabled: true
+    priority: "low"
+
+  - name: "Amar Ujala - Uttarakhand"
+    url: "https://www.amarujala.com/rss/uttarakhand.xml"
+    category: "regional"
+    language: "hindi"
+    region: "uttarakhand"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  # Himachal Pradesh
+  - name: "Tribune India - Himachal"
+    url: "https://www.tribuneindia.com/rss/himachal"
+    category: "regional"
+    language: "english"
+    region: "himachal_pradesh"
+    refresh_interval: 600
+    enabled: true
+    priority: "low"
+
+  - name: "Times of India - Shimla"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/6547160.cms"
+    category: "regional"
+    language: "english"
+    region: "himachal_pradesh"
+    refresh_interval: 600
+    enabled: true
+    priority: "low"
+
+  # Jammu & Kashmir
+  - name: "Greater Kashmir"
+    url: "https://www.greaterkashmir.com/rss"
+    category: "regional"
+    language: "english"
+    region: "jammu_kashmir"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "Kashmir Observer"
+    url: "https://kashmirobserver.net/feed/"
+    category: "regional"
+    language: "english"
+    region: "jammu_kashmir"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+# ============================================================================
+# STATE-SPECIFIC NEWS - WEST INDIA
+# ============================================================================
+
+west_india:
+  # Maharashtra / Mumbai
+  - name: "Times of India - Mumbai"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/2950623.cms"
+    category: "regional"
+    language: "english"
+    region: "maharashtra"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Times of India - Pune"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/4121296.cms"
+    category: "regional"
+    language: "english"
+    region: "maharashtra"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Hindustan Times - Mumbai"
+    url: "https://www.hindustantimes.com/feeds/rss/mumbai-news/rssfeed.xml"
+    category: "regional"
+    language: "english"
+    region: "maharashtra"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Indian Express - Mumbai"
+    url: "https://indianexpress.com/section/cities/mumbai/feed/"
+    category: "regional"
+    language: "english"
+    region: "maharashtra"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Indian Express - Pune"
+    url: "https://indianexpress.com/section/cities/pune/feed/"
+    category: "regional"
+    language: "english"
+    region: "maharashtra"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Mid-Day"
+    url: "https://www.mid-day.com/rss-feed/news"
+    category: "regional"
+    language: "english"
+    region: "maharashtra"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "Lokmat (Marathi)"
+    url: "https://www.lokmat.com/rss/national/"
+    category: "regional"
+    language: "marathi"
+    region: "maharashtra"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Maharashtra Times"
+    url: "https://maharashtratimes.com/rssfeedsdefault.cms"
+    category: "regional"
+    language: "marathi"
+    region: "maharashtra"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  # Gujarat
+  - name: "Times of India - Ahmedabad"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/4422553.cms"
+    category: "regional"
+    language: "english"
+    region: "gujarat"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Times of India - Surat"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/4422562.cms"
+    category: "regional"
+    language: "english"
+    region: "gujarat"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "Indian Express - Ahmedabad"
+    url: "https://indianexpress.com/section/cities/ahmedabad/feed/"
+    category: "regional"
+    language: "english"
+    region: "gujarat"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Gujarat Samachar"
+    url: "https://www.gujaratsamachar.com/rss/gujarat"
+    category: "regional"
+    language: "gujarati"
+    region: "gujarat"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Divya Bhaskar"
+    url: "https://www.divyabhaskar.co.in/rss-api/news.rss"
+    category: "regional"
+    language: "gujarati"
+    region: "gujarat"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  # Goa
+  - name: "Times of India - Goa"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/3012535.cms"
+    category: "regional"
+    language: "english"
+    region: "goa"
+    refresh_interval: 600
+    enabled: true
+    priority: "low"
+
+  - name: "Herald Goa"
+    url: "https://www.heraldgoa.in/rss"
+    category: "regional"
+    language: "english"
+    region: "goa"
+    refresh_interval: 600
+    enabled: true
+    priority: "low"
+
+  # Madhya Pradesh
+  - name: "Times of India - Bhopal"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/4550478.cms"
+    category: "regional"
+    language: "english"
+    region: "madhya_pradesh"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "Times of India - Indore"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/4550454.cms"
+    category: "regional"
+    language: "english"
+    region: "madhya_pradesh"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "Dainik Bhaskar - MP"
+    url: "https://www.bhaskar.com/rss-feed/1128/"
+    category: "regional"
+    language: "hindi"
+    region: "madhya_pradesh"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  # Chhattisgarh
+  - name: "Times of India - Raipur"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/4550492.cms"
+    category: "regional"
+    language: "english"
+    region: "chhattisgarh"
+    refresh_interval: 600
+    enabled: true
+    priority: "low"
+
+  - name: "Dainik Bhaskar - Chhattisgarh"
+    url: "https://www.bhaskar.com/rss-feed/1131/"
+    category: "regional"
+    language: "hindi"
+    region: "chhattisgarh"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+# ============================================================================
+# STATE-SPECIFIC NEWS - SOUTH INDIA
+# ============================================================================
+
+south_india:
+  # Karnataka / Bangalore
+  - name: "Times of India - Bangalore"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/2886704.cms"
+    category: "regional"
+    language: "english"
+    region: "karnataka"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Deccan Herald - Karnataka"
+    url: "https://www.deccanherald.com/rss/karnataka.rss"
+    category: "regional"
+    language: "english"
+    region: "karnataka"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "The Hindu - Bangalore"
+    url: "https://www.thehindu.com/news/cities/bangalore/feeder/default.rss"
+    category: "regional"
+    language: "english"
+    region: "karnataka"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Indian Express - Bangalore"
+    url: "https://indianexpress.com/section/cities/bangalore/feed/"
+    category: "regional"
+    language: "english"
+    region: "karnataka"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Vijaya Karnataka"
+    url: "https://vijaykarnataka.com/rss"
+    category: "regional"
+    language: "kannada"
+    region: "karnataka"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  # Tamil Nadu / Chennai
+  - name: "Times of India - Chennai"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/2950623.cms"
+    category: "regional"
+    language: "english"
+    region: "tamil_nadu"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "The Hindu - Chennai"
+    url: "https://www.thehindu.com/news/cities/chennai/feeder/default.rss"
+    category: "regional"
+    language: "english"
+    region: "tamil_nadu"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "The Hindu - Tamil Nadu"
+    url: "https://www.thehindu.com/news/national/tamil-nadu/feeder/default.rss"
+    category: "regional"
+    language: "english"
+    region: "tamil_nadu"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Dinamalar"
+    url: "https://www.dinamalar.com/rss/Rss.xml"
+    category: "regional"
+    language: "tamil"
+    region: "tamil_nadu"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Dinakaran"
+    url: "https://www.dinakaran.com/rss.asp"
+    category: "regional"
+    language: "tamil"
+    region: "tamil_nadu"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Dinamani"
+    url: "https://www.dinamani.com/rss/"
+    category: "regional"
+    language: "tamil"
+    region: "tamil_nadu"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  # Kerala
+  - name: "Manorama Online"
+    url: "https://www.manoramaonline.com/news.html?id=1"
+    category: "regional"
+    language: "malayalam"
+    region: "kerala"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Mathrubhumi"
+    url: "https://www.mathrubhumi.com/rss/news"
+    category: "regional"
+    language: "malayalam"
+    region: "kerala"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "The Hindu - Kerala"
+    url: "https://www.thehindu.com/news/national/kerala/feeder/default.rss"
+    category: "regional"
+    language: "english"
+    region: "kerala"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Times of India - Kochi"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/2950648.cms"
+    category: "regional"
+    language: "english"
+    region: "kerala"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  # Telangana / Hyderabad
+  - name: "Times of India - Hyderabad"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/3908341.cms"
+    category: "regional"
+    language: "english"
+    region: "telangana"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "The Hindu - Hyderabad"
+    url: "https://www.thehindu.com/news/cities/Hyderabad/feeder/default.rss"
+    category: "regional"
+    language: "english"
+    region: "telangana"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Deccan Chronicle - Hyderabad"
+    url: "https://www.deccanchronicle.com/rss/hyderabad.xml"
+    category: "regional"
+    language: "english"
+    region: "telangana"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Eenadu"
+    url: "https://www.eenadu.net/rss/telangana-news.xml"
+    category: "regional"
+    language: "telugu"
+    region: "telangana"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  # Andhra Pradesh
+  - name: "The Hindu - Andhra Pradesh"
+    url: "https://www.thehindu.com/news/national/andhra-pradesh/feeder/default.rss"
+    category: "regional"
+    language: "english"
+    region: "andhra_pradesh"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Times of India - Vijayawada"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/3908304.cms"
+    category: "regional"
+    language: "english"
+    region: "andhra_pradesh"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "Eenadu - AP"
+    url: "https://www.eenadu.net/rss/andhra-pradesh-news.xml"
+    category: "regional"
+    language: "telugu"
+    region: "andhra_pradesh"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Sakshi"
+    url: "https://www.sakshi.com/rss"
+    category: "regional"
+    language: "telugu"
+    region: "andhra_pradesh"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+# ============================================================================
+# STATE-SPECIFIC NEWS - EAST INDIA
+# ============================================================================
+
+east_india:
+  # West Bengal / Kolkata
+  - name: "Times of India - Kolkata"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/2950623.cms"
+    category: "regional"
+    language: "english"
+    region: "west_bengal"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "The Telegraph - Calcutta"
+    url: "https://www.telegraphindia.com/rss/calcutta"
+    category: "regional"
+    language: "english"
+    region: "west_bengal"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Anandabazar Patrika"
+    url: "https://www.anandabazar.com/rss/news"
+    category: "regional"
+    language: "bengali"
+    region: "west_bengal"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Ei Samay"
+    url: "https://eisamay.com/rss-feed/news.xml"
+    category: "regional"
+    language: "bengali"
+    region: "west_bengal"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  # Bihar
+  - name: "Times of India - Patna"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/4118245.cms"
+    category: "regional"
+    language: "english"
+    region: "bihar"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "Hindustan - Bihar"
+    url: "https://www.livehindustan.com/rss/bihar/news.xml"
+    category: "regional"
+    language: "hindi"
+    region: "bihar"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Dainik Jagran - Bihar"
+    url: "https://www.jagran.com/rss/state-bihar.xml"
+    category: "regional"
+    language: "hindi"
+    region: "bihar"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Prabhat Khabar - Bihar"
+    url: "https://www.prabhatkhabar.com/rss/bihar"
+    category: "regional"
+    language: "hindi"
+    region: "bihar"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  # Jharkhand
+  - name: "Times of India - Ranchi"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/4118252.cms"
+    category: "regional"
+    language: "english"
+    region: "jharkhand"
+    refresh_interval: 600
+    enabled: true
+    priority: "low"
+
+  - name: "Prabhat Khabar - Jharkhand"
+    url: "https://www.prabhatkhabar.com/rss/jharkhand"
+    category: "regional"
+    language: "hindi"
+    region: "jharkhand"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  # Odisha
+  - name: "Times of India - Bhubaneswar"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/4118235.cms"
+    category: "regional"
+    language: "english"
+    region: "odisha"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "The New Indian Express - Odisha"
+    url: "https://www.newindianexpress.com/states/odisha/?widgetName=rssfeed&widgetId=864649&getXmlFeed=true"
+    category: "regional"
+    language: "english"
+    region: "odisha"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "Odisha Sun Times"
+    url: "https://odishasuntimes.com/feed/"
+    category: "regional"
+    language: "english"
+    region: "odisha"
+    refresh_interval: 600
+    enabled: true
+    priority: "low"
+
+# ============================================================================
+# STATE-SPECIFIC NEWS - NORTHEAST INDIA
+# ============================================================================
+
+northeast_india:
+  # Assam
+  - name: "Times of India - Guwahati"
+    url: "https://timesofindia.indiatimes.com/rssfeeds/4118215.cms"
+    category: "regional"
+    language: "english"
+    region: "assam"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  - name: "The Assam Tribune"
+    url: "https://www.assamtribune.com/rss/assam"
+    category: "regional"
+    language: "english"
+    region: "assam"
+    refresh_interval: 600
+    enabled: true
+    priority: "high"
+
+  - name: "Northeast Now"
+    url: "https://nenow.in/feed"
+    category: "regional"
+    language: "english"
+    region: "northeast"
+    refresh_interval: 600
+    enabled: true
+    priority: "medium"
+
+  # Other NE States
+  - name: "The Morung Express"
+    url: "https://morungexpress.com/feed"
+    category: "regional"
+    language: "english"
+    region: "nagaland"
+    refresh_interval: 600
+    enabled: true
+    priority: "low"
+
+  - name: "The Shillong Times"
+    url: "https://www.theshillongtimes.com/feed/"
+    category: "regional"
+    language: "english"
+    region: "meghalaya"
+    refresh_interval: 600
+    enabled: true
+    priority: "low"
+
+  - name: "Eastern Mirror"
+    url: "https://easternmirrornagaland.com/feed/"
+    category: "regional"
+    language: "english"
+    region: "nagaland"
+    refresh_interval: 600
+    enabled: true
+    priority: "low"

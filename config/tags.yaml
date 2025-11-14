@@ -1,0 +1,1047 @@
+# Tags Configuration for India News Tracker
+# Last Updated: 2025-11-14
+#
+# This file defines all the tags/categories used to classify news articles
+# Each tag has:
+# - keywords: Words/phrases that indicate this category
+# - severity_weights: Importance multipliers for different sub-types
+# - color: Hex color code for visualization (vibrant for black background)
+
+# ============================================================================
+# ENABLED CATEGORIES
+# ============================================================================
+
+enabled_categories:
+  # Crime & Violence
+  - murder
+  - rape
+  - sexual_assault
+  - robbery
+  - theft
+  - kidnapping
+  - assault
+  - domestic_violence
+  - organized_crime
+  - mob_violence
+  - lynching
+
+  # Governance & Corruption
+  - corruption
+  - bribery
+  - scam
+  - fraud
+  - embezzlement
+  - misuse_of_power
+  - electoral_malpractice
+  - police_brutality
+
+  # Social Issues
+  - caste_discrimination
+  - religious_discrimination
+  - gender_discrimination
+  - hate_crime
+  - communal_violence
+  - religious_tension
+  - gender_violence
+  - child_abuse
+  - dowry
+  - honor_killing
+
+  # Accidents & Disasters
+  - traffic_accident
+  - industrial_accident
+  - building_collapse
+  - fire_incident
+  - natural_disaster
+  - rail_accident
+  - air_accident
+
+  # Justice & Legal
+  - court_verdict
+  - arrest
+  - investigation
+  - police_action
+  - judicial_misconduct
+  - bail
+  - conviction
+
+  # Regional Tags (States)
+  - state_andhra_pradesh
+  - state_arunachal_pradesh
+  - state_assam
+  - state_bihar
+  - state_chhattisgarh
+  - state_goa
+  - state_gujarat
+  - state_haryana
+  - state_himachal_pradesh
+  - state_jharkhand
+  - state_karnataka
+  - state_kerala
+  - state_madhya_pradesh
+  - state_maharashtra
+  - state_manipur
+  - state_meghalaya
+  - state_mizoram
+  - state_nagaland
+  - state_odisha
+  - state_punjab
+  - state_rajasthan
+  - state_sikkim
+  - state_tamil_nadu
+  - state_telangana
+  - state_tripura
+  - state_uttar_pradesh
+  - state_uttarakhand
+  - state_west_bengal
+  - state_delhi
+  - state_jammu_kashmir
+  - state_ladakh
+
+# ============================================================================
+# CATEGORY DEFINITIONS
+# ============================================================================
+
+category_definitions:
+
+  # ========== CRIME & VIOLENCE ==========
+
+  murder:
+    label: "Murder"
+    description: "Homicide, killing, murder cases"
+    color: "#FF6B6B"  # Red
+    keywords:
+      - murder
+      - murdered
+      - killing
+      - killed
+      - homicide
+      - slain
+      - slaying
+      - body found
+      - dead body
+      - corpse
+      - हत्या
+      - मारपीट में मौत
+    severity_weights:
+      mass_casualty: 10
+      serial_killer: 10
+      triple_or_more: 8
+      double_murder: 7
+      single_victim: 5
+      attempt: 3
+
+  rape:
+    label: "Rape"
+    description: "Rape and sexual violence cases"
+    color: "#FF3366"  # Bright red
+    keywords:
+      - rape
+      - raped
+      - gang rape
+      - gang-rape
+      - sexual assault
+      - sexual violence
+      - molestation
+      - molest
+      - बलात्कार
+      - यौन हिंसा
+      - छेड़छाड़
+    severity_weights:
+      gang_rape: 10
+      minor_victim: 10
+      brutal: 9
+      multiple_victims: 8
+      single_victim: 7
+      attempt: 5
+
+  sexual_assault:
+    label: "Sexual Assault"
+    description: "Sexual harassment, molestation, assault"
+    color: "#FF6699"  # Pink-red
+    keywords:
+      - sexual harassment
+      - molest
+      - molestation
+      - grope
+      - groping
+      - inappropriate touch
+      - sexual misconduct
+      - eve teasing
+      - छेड़खानी
+    severity_weights:
+      workplace: 6
+      public_place: 6
+      minor_victim: 8
+      repeat_offender: 7
+      single_incident: 4
+
+  robbery:
+    label: "Robbery"
+    description: "Armed robbery, dacoity, heists"
+    color: "#FFB347"  # Orange
+    keywords:
+      - robbery
+      - robbed
+      - dacoity
+      - loot
+      - looted
+      - heist
+      - armed robbery
+      - bank robbery
+      - डकैती
+      - लूटपाट
+    severity_weights:
+      armed: 8
+      bank: 9
+      violence_involved: 7
+      no_violence: 4
+
+  theft:
+    label: "Theft"
+    description: "Theft, burglary, pickpocketing"
+    color: "#FFCC66"  # Light orange
+    keywords:
+      - theft
+      - burglary
+      - burglar
+      - stolen
+      - pickpocket
+      - shoplifting
+      - चोरी
+    severity_weights:
+      major_value: 6
+      organized: 7
+      petty: 2
+
+  kidnapping:
+    label: "Kidnapping"
+    description: "Kidnapping, abduction cases"
+    color: "#FF99CC"  # Pink
+    keywords:
+      - kidnap
+      - kidnapped
+      - kidnapping
+      - abduct
+      - abducted
+      - abduction
+      - missing person
+      - अपहरण
+      - लापता
+    severity_weights:
+      child: 10
+      ransom: 8
+      trafficking: 10
+      found_safe: 3
+      still_missing: 7
+
+  assault:
+    label: "Assault & Battery"
+    description: "Physical assault, battery, attacks"
+    color: "#FF8C69"  # Coral
+    keywords:
+      - assault
+      - assaulted
+      - attack
+      - attacked
+      - beaten
+      - beating
+      - thrashing
+      - मारपीट
+      - हमला
+    severity_weights:
+      grievous_injury: 7
+      weapon_used: 8
+      minor_injury: 4
+      mob_attack: 9
+
+  domestic_violence:
+    label: "Domestic Violence"
+    description: "Domestic abuse, family violence"
+    color: "#FF6B9D"  # Rose
+    keywords:
+      - domestic violence
+      - domestic abuse
+      - wife beating
+      - husband assault
+      - family violence
+      - marital violence
+      - घरेलू हिंसा
+    severity_weights:
+      fatal: 9
+      serious_injury: 7
+      repeated: 6
+      single_incident: 4
+
+  organized_crime:
+    label: "Organized Crime"
+    description: "Mafia, gangs, organized criminal activity"
+    color: "#CC0000"  # Dark red
+    keywords:
+      - mafia
+      - gang
+      - gangster
+      - crime syndicate
+      - organized crime
+      - underworld
+      - extortion
+      - protection money
+      - contract killing
+      - supari
+    severity_weights:
+      major_operation: 10
+      violence: 9
+      racket: 7
+
+  mob_violence:
+    label: "Mob Violence"
+    description: "Mob attacks, lynch mobs"
+    color: "#FF3300"  # Bright orange-red
+    keywords:
+      - mob violence
+      - mob attack
+      - lynch
+      - lynching
+      - vigilante
+      - mob justice
+      - भीड़ हिंसा
+      - लिंचिंग
+    severity_weights:
+      fatal: 10
+      serious_injury: 8
+      minor_injury: 5
+
+  lynching:
+    label: "Lynching"
+    description: "Lynching, mob killings"
+    color: "#CC0033"  # Deep red
+    keywords:
+      - lynch
+      - lynched
+      - lynching
+      - mob killing
+      - beaten to death
+      - पीट-पीटकर मौत
+    severity_weights:
+      fatal: 10
+      attempt: 7
+
+  # ========== GOVERNANCE & CORRUPTION ==========
+
+  corruption:
+    label: "Corruption"
+    description: "Political and bureaucratic corruption"
+    color: "#FFD700"  # Gold
+    keywords:
+      - corruption
+      - corrupt
+      - bribe
+      - bribery
+      - kickback
+      - graft
+      - payoff
+      - भ्रष्टाचार
+      - रिश्वत
+    severity_weights:
+      political_high_level: 10
+      minister_level: 10
+      bureaucratic_high: 8
+      bureaucratic_low: 5
+      petty: 3
+
+  bribery:
+    label: "Bribery"
+    description: "Bribery cases"
+    color: "#FFCC00"  # Yellow
+    keywords:
+      - bribe
+      - bribery
+      - bribed
+      - payoff
+      - kickback
+      - under the table
+      - रिश्वत
+      - घूस
+    severity_weights:
+      large_amount: 8
+      government_official: 7
+      petty: 3
+
+  scam:
+    label: "Scam & Fraud"
+    description: "Large-scale scams and frauds"
+    color: "#FF9933"  # Saffron
+    keywords:
+      - scam
+      - fraud
+      - fraudulent
+      - ponzi scheme
+      - cheating
+      - con
+      - swindle
+      - घोटाला
+      - धोखाधड़ी
+    severity_weights:
+      multi_crore: 10
+      government_scheme: 9
+      large_scale: 8
+      individual: 4
+
+  fraud:
+    label: "Fraud"
+    description: "Fraud, cheating, financial crimes"
+    color: "#FFAA33"  # Orange-yellow
+    keywords:
+      - fraud
+      - fraudulent
+      - cheating
+      - cheat
+      - forgery
+      - fake
+      - counterfeit
+      - धोखाधड़ी
+      - जालसाजी
+    severity_weights:
+      large_scale: 8
+      bank_fraud: 8
+      insurance_fraud: 6
+      identity_theft: 7
+      small_scale: 3
+
+  embezzlement:
+    label: "Embezzlement"
+    description: "Embezzlement, misappropriation of funds"
+    color: "#FFB366"  # Light orange
+    keywords:
+      - embezzlement
+      - embezzle
+      - misappropriation
+      - siphon
+      - siphoned funds
+      - financial irregularity
+      - गबन
+      - धन हेराफेरी
+    severity_weights:
+      government_funds: 9
+      large_amount: 8
+      corporate: 6
+      small_amount: 4
+
+  misuse_of_power:
+    label: "Misuse of Power"
+    description: "Abuse of authority, misuse of office"
+    color: "#FF6633"  # Red-orange
+    keywords:
+      - misuse of power
+      - abuse of power
+      - abuse of authority
+      - misuse of office
+      - सत्ता का दुरुपयोग
+    severity_weights:
+      political: 8
+      police: 9
+      bureaucratic: 7
+
+  electoral_malpractice:
+    label: "Electoral Malpractice"
+    description: "Election fraud, voter manipulation"
+    color: "#9966FF"  # Purple
+    keywords:
+      - election fraud
+      - voter fraud
+      - rigging
+      - booth capturing
+      - electoral malpractice
+      - चुनावी धांधली
+      - बूथ कैप्चरिंग
+    severity_weights:
+      large_scale: 10
+      booth_capture: 9
+      intimidation: 8
+      minor: 4
+
+  police_brutality:
+    label: "Police Brutality"
+    description: "Police violence, custodial death, torture"
+    color: "#FF3366"  # Red-pink
+    keywords:
+      - police brutality
+      - police violence
+      - custodial death
+      - encounter
+      - fake encounter
+      - police torture
+      - third degree
+      - पुलिस हिरासत में मौत
+      - एनकाउंटर
+    severity_weights:
+      custodial_death: 10
+      fake_encounter: 10
+      torture: 9
+      excessive_force: 7
+
+  # ========== SOCIAL ISSUES ==========
+
+  caste_discrimination:
+    label: "Caste Discrimination"
+    description: "Caste-based discrimination, atrocities"
+    color: "#8B4513"  # Brown
+    keywords:
+      - caste discrimination
+      - casteism
+      - dalit
+      - sc/st atrocity
+      - untouchability
+      - caste violence
+      - जातिगत भेदभाव
+      - दलित उत्पीड़न
+    severity_weights:
+      violence: 10
+      murder: 10
+      sexual_violence: 10
+      social_boycott: 7
+      discrimination: 5
+
+  religious_discrimination:
+    label: "Religious Discrimination"
+    description: "Religious intolerance, discrimination"
+    color: "#663399"  # Purple
+    keywords:
+      - religious discrimination
+      - religious intolerance
+      - minority persecution
+      - धार्मिक भेदभाव
+    severity_weights:
+      violence: 9
+      systemic: 7
+      incident: 5
+
+  gender_discrimination:
+    label: "Gender Discrimination"
+    description: "Gender-based discrimination"
+    color: "#FF69B4"  # Hot pink
+    keywords:
+      - gender discrimination
+      - women discrimination
+      - female foeticide
+      - sex-selective abortion
+      - लिंग भेदभाव
+      - कन्या भ्रूण हत्या
+    severity_weights:
+      foeticide: 10
+      workplace: 6
+      social: 5
+
+  hate_crime:
+    label: "Hate Crime"
+    description: "Hate crimes based on identity"
+    color: "#FF0000"  # Pure red
+    keywords:
+      - hate crime
+      - hate speech
+      - communal hatred
+      - incitement
+      - घृणा अपराध
+      - सांप्रदायिक घृणा
+    severity_weights:
+      violence: 10
+      murder: 10
+      speech: 6
+
+  communal_violence:
+    label: "Communal Violence"
+    description: "Religious/communal riots and violence"
+    color: "#FF4500"  # Orange-red
+    keywords:
+      - communal violence
+      - communal riot
+      - communal clash
+      - religious riot
+      - sectarian violence
+      - सांप्रदायिक हिंसा
+      - सांप्रदायिक दंगा
+    severity_weights:
+      major_riot: 10
+      multiple_deaths: 10
+      clashes: 7
+      tension: 5
+
+  religious_tension:
+    label: "Religious Tension"
+    description: "Inter-religious tensions"
+    color: "#FF6347"  # Tomato
+    keywords:
+      - religious tension
+      - communal tension
+      - sectarian tension
+      - सांप्रदायिक तनाव
+    severity_weights:
+      violence_likely: 7
+      high_alert: 6
+      minor: 3
+
+  gender_violence:
+    label: "Gender-Based Violence"
+    description: "Violence against women and gender minorities"
+    color: "#FF1493"  # Deep pink
+    keywords:
+      - violence against women
+      - gender violence
+      - acid attack
+      - stalking
+      - महिला हिंसा
+      - तेजाब हमला
+    severity_weights:
+      acid_attack: 10
+      murder: 10
+      serious_harm: 8
+      harassment: 5
+
+  child_abuse:
+    label: "Child Abuse"
+    description: "Child abuse, exploitation, trafficking"
+    color: "#FF6B99"  # Light pink
+    keywords:
+      - child abuse
+      - child trafficking
+      - child labour
+      - child exploitation
+      - pedophilia
+      - बाल शोषण
+      - बाल तस्करी
+    severity_weights:
+      trafficking: 10
+      sexual_abuse: 10
+      severe_abuse: 9
+      labour: 6
+
+  dowry:
+    label: "Dowry Crime"
+    description: "Dowry death, harassment"
+    color: "#FFB6C1"  # Light pink
+    keywords:
+      - dowry death
+      - dowry harassment
+      - dowry demand
+      - दहेज हत्या
+      - दहेज उत्पीड़न
+    severity_weights:
+      death: 10
+      suicide: 9
+      harassment: 6
+      demand: 4
+
+  honor_killing:
+    label: "Honor Killing"
+    description: "Honor killings"
+    color: "#8B0000"  # Dark red
+    keywords:
+      - honor killing
+      - honour killing
+      - love affair murder
+      - ऑनर किलिंग
+      - सम्मान के लिए हत्या
+    severity_weights:
+      killing: 10
+      attempt: 7
+
+  # ========== ACCIDENTS & DISASTERS ==========
+
+  traffic_accident:
+    label: "Traffic Accident"
+    description: "Road accidents, vehicle collisions"
+    color: "#FF7F50"  # Coral
+    keywords:
+      - road accident
+      - car accident
+      - vehicle collision
+      - hit and run
+      - truck accident
+      - bus accident
+      - bike accident
+      - सड़क दुर्घटना
+      - हिट एंड रन
+    severity_weights:
+      multiple_deaths: 9
+      fatal: 7
+      serious_injury: 5
+      minor_injury: 2
+
+  industrial_accident:
+    label: "Industrial Accident"
+    description: "Factory accidents, industrial mishaps"
+    color: "#D2691E"  # Chocolate
+    keywords:
+      - industrial accident
+      - factory accident
+      - chemical leak
+      - gas leak
+      - explosion
+      - boiler blast
+      - औद्योगिक दुर्घटना
+      - गैस रिसाव
+    severity_weights:
+      major_disaster: 10
+      multiple_casualties: 9
+      serious: 7
+      minor: 4
+
+  building_collapse:
+    label: "Building Collapse"
+    description: "Building collapses, structural failures"
+    color: "#A0522D"  # Sienna
+    keywords:
+      - building collapse
+      - structure collapse
+      - roof collapse
+      - wall collapse
+      - इमारत गिरना
+      - छत धसकना
+    severity_weights:
+      residential: 9
+      multiple_casualties: 10
+      injuries: 6
+      no_casualties: 3
+
+  fire_incident:
+    label: "Fire Incident"
+    description: "Fire accidents, blazes"
+    color: "#FF4500"  # Red-orange
+    keywords:
+      - fire
+      - blaze
+      - fire accident
+      - fire breakout
+      - arson
+      - आग लगना
+      - आगजनी
+    severity_weights:
+      major_fire: 8
+      deaths: 10
+      arson: 7
+      minor: 3
+
+  natural_disaster:
+    label: "Natural Disaster"
+    description: "Floods, earthquakes, cyclones"
+    color: "#4169E1"  # Royal blue
+    keywords:
+      - flood
+      - earthquake
+      - cyclone
+      - landslide
+      - cloudburst
+      - drought
+      - प्राकृतिक आपदा
+      - बाढ़
+      - भूकंप
+    severity_weights:
+      major_disaster: 10
+      multiple_deaths: 10
+      significant_damage: 7
+      minor: 4
+
+  rail_accident:
+    label: "Rail Accident"
+    description: "Train accidents, derailments"
+    color: "#B22222"  # Firebrick
+    keywords:
+      - train accident
+      - rail accident
+      - train derailment
+      - train collision
+      - रेल दुर्घटना
+      - ट्रेन टक्कर
+    severity_weights:
+      major_accident: 10
+      multiple_deaths: 10
+      derailment: 8
+      minor: 4
+
+  air_accident:
+    label: "Air Accident"
+    description: "Plane crashes, aviation accidents"
+    color: "#00008B"  # Dark blue
+    keywords:
+      - plane crash
+      - air crash
+      - aviation accident
+      - helicopter crash
+      - विमान हादसा
+    severity_weights:
+      commercial: 10
+      private: 8
+      helicopter: 7
+
+  # ========== JUSTICE & LEGAL ==========
+
+  court_verdict:
+    label: "Court Verdict"
+    description: "Court judgments and verdicts"
+    color: "#4B0082"  # Indigo
+    keywords:
+      - court verdict
+      - judgment
+      - sentenced
+      - acquitted
+      - convicted
+      - अदालत का फैसला
+      - सजा
+    severity_weights:
+      major_case: 8
+      landmark: 9
+      routine: 3
+
+  arrest:
+    label: "Arrest"
+    description: "Arrests by police"
+    color: "#483D8B"  # Dark slate blue
+    keywords:
+      - arrest
+      - arrested
+      - custody
+      - taken into custody
+      - detained
+      - गिरफ्तार
+      - हिरासत
+    severity_weights:
+      major_criminal: 8
+      politician: 9
+      celebrity: 7
+      common: 3
+
+  investigation:
+    label: "Investigation"
+    description: "Police/CBI investigations"
+    color: "#6A5ACD"  # Slate blue
+    keywords:
+      - investigation
+      - probe
+      - inquiry
+      - cbi probe
+      - police investigation
+      - जांच
+    severity_weights:
+      high_profile: 8
+      cbi: 9
+      routine: 3
+
+  police_action:
+    label: "Police Action"
+    description: "Police operations, raids"
+    color: "#7B68EE"  # Medium slate blue
+    keywords:
+      - police raid
+      - police action
+      - police operation
+      - crackdown
+      - पुलिस छापेमारी
+    severity_weights:
+      major_operation: 8
+      routine: 3
+
+  judicial_misconduct:
+    label: "Judicial Misconduct"
+    description: "Judge misconduct, judicial corruption"
+    color: "#9370DB"  # Medium purple
+    keywords:
+      - judge misconduct
+      - judicial corruption
+      - judge impeachment
+      - न्यायिक भ्रष्टाचार
+    severity_weights:
+      high_court: 10
+      lower_court: 7
+
+  bail:
+    label: "Bail"
+    description: "Bail granted/denied"
+    color: "#8470FF"  # Light slate blue
+    keywords:
+      - bail granted
+      - bail denied
+      - bail rejected
+      - bail application
+      - जमानत
+    severity_weights:
+      high_profile: 7
+      routine: 2
+
+  conviction:
+    label: "Conviction"
+    description: "Criminal convictions"
+    color: "#4B0082"  # Indigo
+    keywords:
+      - convicted
+      - conviction
+      - found guilty
+      - guilty verdict
+      - दोषी करार
+    severity_weights:
+      major_crime: 9
+      death_sentence: 10
+      life_sentence: 9
+      routine: 4
+
+# ============================================================================
+# EXCLUSION KEYWORDS
+# Articles with these keywords should be ignored/filtered out
+# ============================================================================
+
+exclusion_keywords:
+  # Entertainment
+  - movie review
+  - film review
+  - box office
+  - cinema
+  - trailer
+  - red carpet
+  - award show
+  - celebrity wedding
+  - celebrity birthday
+  - bollywood gossip
+  - फिल्म समीक्षा
+
+  # Sports (unless crime/corruption related)
+  - cricket match
+  - football match
+  - ipl
+  - match score
+  - sports score
+  - tournament
+  - olympic
+  - विश्व कप
+  - मैच स्कोर
+
+  # Technology
+  - smartphone launch
+  - tech product launch
+  - app update
+  - software update
+  - gadget review
+  - gaming
+
+  # Business (general)
+  - stock market
+  - share price
+  - quarterly results
+  - earning report
+  - merger
+  - ipo
+
+  # Lifestyle
+  - fashion
+  - makeup
+  - recipe
+  - cooking
+  - travel guide
+  - restaurant review
+  - lifestyle tips
+
+  # Weather (unless disaster)
+  - weather forecast
+  - मौसम पूर्वानुमान
+
+  # Astrology
+  - horoscope
+  - rashifal
+  - राशिफल
+
+# ============================================================================
+# STATE MAPPING
+# Used to extract state information from article text
+# ============================================================================
+
+state_mapping:
+  state_andhra_pradesh:
+    keywords: ["andhra pradesh", "ap", "amaravati", "vijayawada", "visakhapatnam", "आंध्र प्रदेश"]
+
+  state_arunachal_pradesh:
+    keywords: ["arunachal pradesh", "itanagar", "अरुणाचल प्रदेश"]
+
+  state_assam:
+    keywords: ["assam", "guwahati", "dispur", "असम"]
+
+  state_bihar:
+    keywords: ["bihar", "patna", "gaya", "muzaffarpur", "बिहार", "पटना"]
+
+  state_chhattisgarh:
+    keywords: ["chhattisgarh", "raipur", "bilaspur", "छत्तीसगढ़"]
+
+  state_goa:
+    keywords: ["goa", "panaji", "margao", "गोवा"]
+
+  state_gujarat:
+    keywords: ["gujarat", "ahmedabad", "gandhinagar", "surat", "rajkot", "गुजरात", "अहमदाबाद"]
+
+  state_haryana:
+    keywords: ["haryana", "chandigarh", "gurgaon", "gurugram", "faridabad", "हरियाणा"]
+
+  state_himachal_pradesh:
+    keywords: ["himachal pradesh", "shimla", "dharamshala", "हिमाचल प्रदेश"]
+
+  state_jharkhand:
+    keywords: ["jharkhand", "ranchi", "jamshedpur", "dhanbad", "झारखंड"]
+
+  state_karnataka:
+    keywords: ["karnataka", "bangalore", "bengaluru", "mysore", "mangalore", "कर्नाटक", "बेंगलुरु"]
+
+  state_kerala:
+    keywords: ["kerala", "thiruvananthapuram", "kochi", "kozhikode", "केरल"]
+
+  state_madhya_pradesh:
+    keywords: ["madhya pradesh", "mp", "bhopal", "indore", "jabalpur", "मध्य प्रदेश", "भोपाल"]
+
+  state_maharashtra:
+    keywords: ["maharashtra", "mumbai", "pune", "nagpur", "nashik", "महाराष्ट्र", "मुंबई"]
+
+  state_manipur:
+    keywords: ["manipur", "imphal", "मणिपुर"]
+
+  state_meghalaya:
+    keywords: ["meghalaya", "shillong", "मेघालय"]
+
+  state_mizoram:
+    keywords: ["mizoram", "aizawl", "मिजोरम"]
+
+  state_nagaland:
+    keywords: ["nagaland", "kohima", "नागालैंड"]
+
+  state_odisha:
+    keywords: ["odisha", "orissa", "bhubaneswar", "cuttack", "ओडिशा"]
+
+  state_punjab:
+    keywords: ["punjab", "chandigarh", "ludhiana", "amritsar", "पंजाब"]
+
+  state_rajasthan:
+    keywords: ["rajasthan", "jaipur", "jodhpur", "udaipur", "राजस्थान", "जयपुर"]
+
+  state_sikkim:
+    keywords: ["sikkim", "gangtok", "सिक्किम"]
+
+  state_tamil_nadu:
+    keywords: ["tamil nadu", "chennai", "madurai", "coimbatore", "तमिलनाडु", "चेन्नई"]
+
+  state_telangana:
+    keywords: ["telangana", "hyderabad", "warangal", "तेलंगाना", "हैदराबाद"]
+
+  state_tripura:
+    keywords: ["tripura", "agartala", "त्रिपुरा"]
+
+  state_uttar_pradesh:
+    keywords: ["uttar pradesh", "up", "lucknow", "kanpur", "agra", "varanasi", "noida", "उत्तर प्रदेश", "लखनऊ"]
+
+  state_uttarakhand:
+    keywords: ["uttarakhand", "dehradun", "haridwar", "uttrakhand", "उत्तराखंड"]
+
+  state_west_bengal:
+    keywords: ["west bengal", "kolkata", "calcutta", "howrah", "पश्चिम बंगाल", "कोलकाता"]
+
+  state_delhi:
+    keywords: ["delhi", "new delhi", "ncr", "दिल्ली"]
+
+  state_jammu_kashmir:
+    keywords: ["jammu and kashmir", "jammu", "kashmir", "srinagar", "जम्मू कश्मीर"]
+
+  state_ladakh:
+    keywords: ["ladakh", "leh", "kargil", "लद्दाख"]
