@@ -131,18 +131,11 @@ prompts:
     variables:
       - article_text
       - available_tags
-      - state_list
 
   entity_extraction:
     template_file: "config/prompts/entity-extraction.txt"
     variables:
       - article_text
-
-  summarization:
-    template_file: "config/prompts/summarization.txt"
-    variables:
-      - article_text
-      - max_sentences
 
 # ============================================================================
 # BATCH PROCESSING

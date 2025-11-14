@@ -12,9 +12,6 @@ IMPORTANT INSTRUCTIONS:
 AVAILABLE TAGS:
 {available_tags}
 
-STATES IN INDIA:
-{state_list}
-
 ARTICLE TO CLASSIFY:
 ---
 {article_text}
@@ -64,9 +61,11 @@ EXCLUSION CRITERIA (mark relevant=false):
 - Film/book reviews
 
 LOCATION EXTRACTION:
-- Always try to identify the state
-- Extract city if mentioned
-- Common patterns: "in [city]", "at [location], [state]", "[city] police"
+- Extract the Indian state name from the article (e.g., "Karnataka", "Uttar Pradesh", "Tamil Nadu")
+- Extract city name if mentioned
+- Look for patterns: "in [city]", "at [location], [state]", "[city] police", "[state] government"
+- Use proper state names (not abbreviations): "Uttar Pradesh" not "UP", "Madhya Pradesh" not "MP"
+- Return null if no state/city can be determined from the article
 
 ENTITY EXTRACTION:
 - Extract names of key people involved
