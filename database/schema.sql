@@ -21,7 +21,7 @@ CREATE TABLE rss_sources (
   last_fetched_at TIMESTAMP,
   last_success_at TIMESTAMP,
   consecutive_failures INTEGER DEFAULT 0,
-  metadata JSONB,
+  meta_data JSONB,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
@@ -172,7 +172,7 @@ CREATE TABLE processing_logs (
   items_processed INTEGER DEFAULT 0,
   items_failed INTEGER DEFAULT 0,
   error_message TEXT,
-  metadata JSONB
+  meta_data JSONB
 );
 
 CREATE INDEX idx_processing_logs_type ON processing_logs(job_type);

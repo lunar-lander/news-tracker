@@ -22,7 +22,7 @@ class RSSSource(Base):
     last_fetched_at = Column(TIMESTAMP)
     last_success_at = Column(TIMESTAMP)
     consecutive_failures = Column(Integer, default=0)
-    metadata = Column(JSON)
+    meta_data = Column(JSON)
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
 

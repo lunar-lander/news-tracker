@@ -18,4 +18,4 @@ class ProcessingLog(Base):
     items_processed = Column(Integer, default=0)
     items_failed = Column(Integer, default=0)
     error_message = Column(Text)
-    metadata = Column(JSON)
+    meta_data = Column(JSON)

@@ -238,7 +238,7 @@ async def fetch_all_feeds():
             log.status = "completed"
             log.items_processed = total_processed
             log.items_failed = total_failed
-            log.metadata = {
+            log.meta_data = {
                 "sources_processed": total_processed,
                 "sources_failed": total_failed,
                 "new_entries": total_new_entries,

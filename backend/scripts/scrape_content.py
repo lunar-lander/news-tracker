@@ -254,7 +254,7 @@ async def scrape_pending_articles(batch_size: int = 50):
             log.status = "completed"
             log.items_processed = total_processed
             log.items_failed = total_failed
-            log.metadata = {
+            log.meta_data = {
                 "articles_scraped": total_success,
                 "articles_failed": total_failed,
             }

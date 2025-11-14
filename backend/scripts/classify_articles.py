@@ -392,7 +392,7 @@ async def classify_pending_articles(batch_size: int = 20):
             log.status = "completed"
             log.items_processed = total_processed
             log.items_failed = total_failed
-            log.metadata = {
+            log.meta_data = {
                 "classifications_created": total_success,
                 "classifications_failed": total_failed,
             }
