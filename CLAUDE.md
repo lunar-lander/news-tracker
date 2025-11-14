@@ -129,22 +129,17 @@ Modern news consumption is ephemeral - people read about events and forget them 
 #### Interactive Features:
 - **Clickable Nodes:** Each data point on time-series is clickable
 - **Sidebar Details:** Clicking opens a sidebar showing:
-  - Headlines for that time period
+  - Headlines for that time period (with multilingual support for display)
   - Direct links to source articles
   - Summary statistics
   - Related incidents
   - Tags and classifications
 - **Filtering:** Filter by date range, region, severity, tags
-- **Search:** Full-text search across headlines and summaries
-- **Bookmarking:** Save interesting patterns or incidents
-- **Sharing:** Share visualizations and filtered views
+- **Search:** Basic headline search
 
 #### Additional Dashboard Features:
-- **Trending Now:** Real-time feed of breaking news in tracked categories
 - **Comparative Analytics:** Compare incident volumes across states/regions
 - **Correlation Insights:** Identify potential correlations between categories
-- **Alerts:** Notify users of unusual spikes in specific categories
-- **Export Data:** Download filtered datasets for further analysis
 
 ## 4. Configuration Management
 
@@ -254,14 +249,22 @@ dashboard:
 
   visualizations:
     default_chart_type: "line"
-    color_scheme: "severity_gradient"  # or "category_based"
+    color_scheme: "vibrant_on_black"  # vibrant colors on pure black background
     animation_enabled: true
 
+  theme:
+    background_color: "#000000"  # Pure black, not grey
+    text_color: "#FFFFFF"
+    accent_colors:
+      primary: "#FF6B6B"
+      secondary: "#4ECDC4"
+      success: "#95E1D3"
+      warning: "#FFD93D"
+      danger: "#F38181"
+
   features:
-    enable_export: true
-    enable_sharing: true
-    enable_alerts: true
     enable_search: true
+    enable_i18n_headlines: true  # Display multilingual headlines
 
   performance:
     data_points_limit: 1000  # per chart
@@ -273,7 +276,6 @@ dashboard:
 ```bash
 # Database
 DATABASE_URL=postgresql://user:pass@localhost:5432/newstrack
-REDIS_URL=redis://localhost:6379
 
 # LLM APIs
 OPENAI_API_KEY=sk-...
@@ -281,13 +283,13 @@ ANTHROPIC_API_KEY=sk-ant-...
 GOOGLE_API_KEY=...
 
 # Application
-NODE_ENV=production
-PORT=3000
+ENVIRONMENT=production
+PORT=8000
 LOG_LEVEL=info
 
-# Cron Jobs
-RSS_FETCH_CRON="*/5 * * * *"  # Every 5 minutes
-CONTENT_PROCESS_CRON="*/10 * * * *"  # Every 10 minutes
+# Cron Jobs (configured in system crontab or Makefile)
+# RSS_FETCH_CRON="*/5 * * * *"  # Every 5 minutes
+# CONTENT_PROCESS_CRON="*/10 * * * *"  # Every 10 minutes
 
 # Security
 JWT_SECRET=...
@@ -300,114 +302,113 @@ ENCRYPTION_KEY=...
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                     Frontend (React)                         │
-│  - Dashboard UI                                              │
+│                Frontend (React + Chart.js)                   │
+│  - Dashboard UI (Pure Black Theme)                           │
 │  - Time-series Visualizations                                │
 │  - Interactive Filtering                                     │
 └──────────────────────┬──────────────────────────────────────┘
                        │
-                       │ REST/GraphQL API
+                       │ REST API
                        │
 ┌──────────────────────▼──────────────────────────────────────┐
-│                   Backend API (Node.js/Express)              │
+│                Backend API (Python/FastAPI)                  │
 │  - API Endpoints                                             │
-│  - Authentication & Authorization                            │
 │  - Data Aggregation & Analytics                              │
 └──────────────────────┬──────────────────────────────────────┘
                        │
-        ┌──────────────┼──────────────┐
-        │              │              │
-┌───────▼──────┐ ┌────▼─────┐ ┌──────▼──────┐
-│   Database   │ │  Redis   │ │ Task Queue  │
-│ (PostgreSQL) │ │  Cache   │ │  (Bull/BQ)  │
-└──────────────┘ └──────────┘ └──────┬──────┘
-                                      │
-                       ┌──────────────┼──────────────┐
-                       │              │              │
-               ┌───────▼─────┐ ┌─────▼──────┐ ┌─────▼──────┐
-               │ RSS Fetcher │ │  Content   │ │    LLM     │
-               │   Worker    │ │  Scraper   │ │ Classifier │
-               │             │ │   Worker   │ │   Worker   │
-               └─────────────┘ └────────────┘ └────────────┘
+                       │
+                ┌──────▼──────┐
+                │   Database  │
+                │(PostgreSQL) │
+                │ +TimescaleDB│
+                └─────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                  Cron Jobs (System Crontab)                  │
+│                                                              │
+│  ┌───────────────┐  ┌──────────────┐  ┌──────────────┐    │
+│  │ RSS Fetcher   │  │   Content    │  │     LLM      │    │
+│  │ (Every 5min)  │  │   Scraper    │  │  Classifier  │    │
+│  │               │  │  (Every 10m) │  │  (Every 10m) │    │
+│  └───────────────┘  └──────────────┘  └──────────────┘    │
+│         │                   │                  │            │
+│         └───────────────────┴──────────────────┘            │
+│                             │                               │
+│                             ▼                               │
+│                      PostgreSQL DB                          │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### 5.2 Components
 
 #### Frontend (React):
 - **Framework:** React 18+ with TypeScript
-- **State Management:** Redux Toolkit or Zustand
-- **Visualization:** D3.js, Recharts, or Visx
-- **UI Components:** Material-UI or Tailwind CSS + Shadcn/ui
+- **State Management:** Zustand or Context API
+- **Visualization:** Chart.js with react-chartjs-2
+- **UI Components:** Tailwind CSS for styling (pure black theme)
 - **Routing:** React Router
-- **API Client:** Axios or React Query
+- **API Client:** Axios or Fetch API
+- **Theme:** Pure black (#000000) background with vibrant chart colors
 
 #### Backend API:
-- **Runtime:** Node.js 20+ with TypeScript
-- **Framework:** Express.js or Fastify
-- **API Style:** REST + GraphQL (optional)
-- **Authentication:** JWT-based
-- **Validation:** Zod or Joi
+- **Language:** Python 3.11+
+- **Framework:** FastAPI
+- **API Style:** REST
+- **ORM:** SQLAlchemy 2.0+
+- **Validation:** Pydantic (built into FastAPI)
+- **ASGI Server:** Uvicorn
 
-#### Workers & Background Jobs:
-- **Task Queue:** Bull (Redis-based) or Google Cloud Tasks
-- **Cron Scheduler:** node-cron or Agenda
-- **RSS Parser:** rss-parser
-- **Web Scraper:** Playwright or Puppeteer
-- **LLM Integration:** LangChain or direct API clients
+#### Background Jobs (Cron):
+- **Scheduler:** System crontab or `make cron-*` commands
+- **RSS Parser:** feedparser (Python library)
+- **Web Scraper:** BeautifulSoup4 + requests or playwright
+- **LLM Integration:** Direct API clients (openai, anthropic-sdk, etc.)
+- **Language Detection:** langdetect or lingua (for multilingual content)
 
 #### Data Storage:
 - **Primary Database:** PostgreSQL 15+
   - Stores news articles, classifications, metadata
-  - Full-text search with pg_trgm
   - Time-series optimizations with TimescaleDB extension
-
-- **Cache:** Redis
-  - API response caching
-  - Session storage
-  - Rate limiting
-  - Real-time data aggregation
-
-- **Object Storage:** S3-compatible (AWS S3, MinIO, etc.)
-  - Store full article HTML/text
-  - Store feed configuration backups
-  - Store exported datasets
+  - Async connection pool with asyncpg
 
 #### LLM Integration:
 - **Multi-provider Support:** OpenAI, Anthropic, Google, Cohere, local models
-- **Prompt Management:** Version-controlled prompts
+- **Prompt Management:** Version-controlled prompts in config/prompts/
 - **Fallback Strategy:** If primary LLM fails, use backup provider
-- **Cost Optimization:** Cache LLM responses, batch processing
+- **Cost Optimization:** Cache LLM responses in database, batch processing
 
 ### 5.3 Data Flow
 
-1. **RSS Ingestion:**
-   - Cron triggers RSS fetcher worker every 5 minutes
-   - Worker fetches all configured RSS feeds
-   - Deduplicates entries against existing database
-   - Stores new entries in `rss_entries` table
-   - Adds entries to content processing queue
+1. **RSS Ingestion (Cron: Every 5 minutes):**
+   - Python script fetches all enabled RSS feeds from config
+   - Parses RSS entries using feedparser
+   - Deduplicates entries against existing database (by GUID/link hash)
+   - Stores new entries in `rss_entries` table with status='pending'
+   - Logs fetch statistics
 
-2. **Content Processing:**
-   - Content scraper worker picks jobs from queue
-   - Fetches full article HTML from source URL
-   - Extracts clean text using readability algorithms
-   - Stores raw text in database
-   - Adds to LLM classification queue
+2. **Content Processing (Cron: Every 10 minutes):**
+   - Python script queries for entries with status='pending'
+   - Fetches full article HTML from source URLs (batch processing)
+   - Extracts clean text using BeautifulSoup or readability
+   - Detects language using langdetect
+   - Stores extracted text in `articles` table
+   - Updates status to 'scraped' or 'failed'
 
-3. **LLM Classification:**
-   - LLM classifier worker picks jobs from queue
+3. **LLM Classification (Cron: Every 10 minutes):**
+   - Python script queries for scraped articles without classification
+   - Batch processes articles through configured LLM
    - Constructs prompt with article text and tag definitions
-   - Calls configured LLM API
-   - Parses LLM response for tags, confidence, summary
-   - Stores classifications in database
-   - Updates search indices
+   - Calls LLM API (with retry logic)
+   - Parses LLM response for tags, confidence, summary, location
+   - Stores classifications in `classifications` table
+   - Creates denormalized record in `news_events` table
+   - Updates status to 'completed'
 
 4. **API & Frontend:**
-   - Frontend requests aggregated data via API
+   - Frontend requests aggregated data via FastAPI endpoints
    - API queries database with filters and time ranges
-   - Results cached in Redis for common queries
-   - Data transformed into visualization-ready format
-   - Frontend renders interactive dashboard
+   - Data transformed into Chart.js-compatible format
+   - Frontend renders interactive dashboard with pure black theme
 
 ## 6. Data Models
 
@@ -542,9 +543,6 @@ CREATE TABLE news_events (
   city VARCHAR(100),
   region VARCHAR(100),
 
-  -- Search
-  search_vector tsvector,
-
   created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -553,29 +551,7 @@ CREATE INDEX idx_news_events_incident ON news_events(incident_date DESC);
 CREATE INDEX idx_news_events_primary_tag ON news_events(primary_tag);
 CREATE INDEX idx_news_events_tags ON news_events USING GIN(all_tags);
 CREATE INDEX idx_news_events_state ON news_events(state);
-CREATE INDEX idx_news_events_search ON news_events USING GIN(search_vector);
-
--- Full-text search trigger
-CREATE TRIGGER news_events_search_update
-BEFORE INSERT OR UPDATE ON news_events
-FOR EACH ROW EXECUTE FUNCTION
-tsvector_update_trigger(search_vector, 'pg_catalog.english', headline, summary);
-```
-
-#### `analytics_cache` Table:
-```sql
-CREATE TABLE analytics_cache (
-  id SERIAL PRIMARY KEY,
-  cache_key VARCHAR(255) UNIQUE NOT NULL,
-  query_params JSONB,
-  result_data JSONB,
-  computed_at TIMESTAMP DEFAULT NOW(),
-  expires_at TIMESTAMP,
-  hit_count INTEGER DEFAULT 0
-);
-
-CREATE INDEX idx_analytics_cache_key ON analytics_cache(cache_key);
-CREATE INDEX idx_analytics_cache_expires ON analytics_cache(expires_at);
+CREATE INDEX idx_news_events_headline ON news_events USING GIN(to_tsvector('english', headline));
 ```
 
 ### 6.2 Time-Series Optimization
@@ -804,7 +780,7 @@ Response:
 ```
 GET /api/v1/search
 Query Parameters:
-  - q: search query (required)
+  - q: search query (required, searches headlines only)
   - start_date, end_date: optional
   - tags: filter by tags
   - state: filter by state
@@ -818,8 +794,8 @@ Response:
       "headline": "...",
       "summary": "...",
       "publishedAt": "...",
-      "relevanceScore": 0.95,
-      "matchedTerms": ["corruption", "scam"]
+      "tags": ["corruption", "state_karnataka"],
+      "state": "Karnataka"
     },
     ...
   ],
@@ -827,295 +803,212 @@ Response:
 }
 ```
 
-### 7.2 WebSocket/Real-time API
-
-```
-WS /api/v1/realtime
-Events:
-  - new_event: Emitted when new classified event is added
-  - trending_update: Emitted when trending tags change
-  - alert: Emitted for unusual spikes or patterns
-
-Client subscribes with:
-{
-  "action": "subscribe",
-  "channels": ["new_events", "trending"],
-  "filters": {
-    "tags": ["corruption"],
-    "states": ["Karnataka"]
-  }
-}
-```
-
 ## 8. User Interface Requirements
 
-### 8.1 Dashboard Layout
+### 8.1 Design Theme: Pure Black Mode
+- **Background:** Pure black (#000000), not grey
+- **Text:** White (#FFFFFF) for maximum contrast
+- **Charts:** Vibrant, saturated colors for easy readability on black
+- **Purpose:** Make data visualizations pop and be highly readable
+
+### 8.2 Dashboard Layout
 
 #### Header:
 - Logo and site title
 - Date range selector (preset ranges + custom)
-- Global search bar
-- Settings/configuration icon
-- Export data button
+- Basic search bar (headline search)
+- Settings icon (filter preferences)
 
 #### Main Grid:
 - Responsive grid layout (CSS Grid or Masonry)
 - Tiles sized by volume/importance algorithm
 - Each tile shows:
-  - Category name and icon
+  - Category name and icon (vibrant colored)
   - Current count for selected period
-  - Sparkline or mini time-series
-  - Trend indicator (up/down/stable)
+  - Mini Chart.js time-series (line chart)
+  - Trend indicator (up/down/stable) with colored arrow
   - Click to expand
 
-#### Sidebar (when tile clicked):
+#### Sidebar (when tile or data point clicked):
 - Slides in from right
-- Shows detailed time-series chart
-- List of headlines for selected time point
+- Pure black background
+- Shows detailed Chart.js time-series chart with vibrant colors
+- List of headlines for selected time point (multilingual display)
+- Direct links to source articles (opens in new tab)
 - Filters specific to this category
 - Related categories/correlations
-- Share/export options
 
-### 8.2 Detailed Views
+### 8.3 Detailed Views
 
 #### Category Detail Page:
-- Large time-series visualization
-- Multiple chart types (toggle between line, bar, area)
+- Large Chart.js time-series visualization (vibrant colors on black)
+- Chart type selector (line, bar, area)
 - Filtering panel (date, region, severity)
-- Headlines list with infinite scroll
-- Geographic heatmap
+- Headlines list with scroll (multilingual headlines displayed)
+- Geographic distribution bar chart by state
 - Related tags cloud
 
 #### Geographic View:
-- India map visualization
-- Color-coded by incident volume
-- Click state for state-level breakdown
-- District-level drill-down
-- Time-series for selected region
+- Simple bar/column chart showing incident volumes by state
+- Click state to filter dashboard
+- Color-coded bars (vibrant colors)
+- Time-series comparison between selected states
 
 #### Search Results:
-- Faceted search with filters
-- Relevance-ranked results
-- Timeline view option
-- Export search results
+- Simple list of matching headlines
+- Basic filters (date, tags, state)
+- Paginated results
 
 #### Analytics Page:
-- Cross-category comparisons
-- Correlation matrix
-- Anomaly detection highlights
-- Top states/cities rankings
-- Month-over-month/year-over-year comparisons
-
-### 8.3 User Preferences
-
-- Save favorite views/filters
-- Custom dashboard layouts
-- Alert preferences
-- Theme (light/dark mode)
-- Accessibility options
+- Cross-category trend comparisons
+- Simple correlation matrix (which tags appear together)
+- Top states/cities bar charts
+- Month-over-month comparisons
 
 ## 9. Analytics & Insights
 
-### 9.1 Automated Insights
+### 9.1 Simple Analytics
 
-The system should automatically detect and highlight:
+The dashboard provides:
 
-1. **Anomalies:**
-   - Unusual spikes in specific categories
-   - Unexpected drops in reporting
-   - Geographic clusters of incidents
+1. **Trends:**
+   - Visual time-series showing categories increasing/decreasing over time
+   - Simple trend indicators (up/down arrows with percentages)
+   - Regional shifts visible through geographic charts
 
-2. **Trends:**
-   - Categories increasing/decreasing over time
-   - Seasonal patterns
-   - Regional shifts
+2. **Correlations:**
+   - Basic correlation matrix showing which tags frequently appear together
+   - State-specific patterns
 
-3. **Correlations:**
-   - Categories that tend to spike together
-   - Regional patterns (e.g., corruption correlates with X in state Y)
-   - Time-based correlations (e.g., accidents peak during festival season)
-
-4. **Comparative Analytics:**
-   - State-by-state comparisons
-   - Urban vs rural incident rates
-   - Progress tracking (are things getting better/worse?)
-
-### 9.2 Reporting
-
-- Weekly email digests (configurable)
-- Monthly reports with insights
-- Annual summaries
-- Custom report builder
-- PDF export for sharing
+3. **Comparative Analytics:**
+   - State-by-state bar chart comparisons
+   - Side-by-side time-series for multiple categories
+   - Month-over-month percentage changes
 
 ## 10. Deployment & Infrastructure
 
 ### 10.1 Deployment Architecture
 
 **Recommended Stack:**
-- **Frontend:** Vercel or Netlify (static hosting)
-- **Backend API:** Railway, Render, or AWS ECS
-- **Database:** Railway Postgres, AWS RDS, or Supabase
-- **Redis:** Railway, Upstash, or AWS ElastiCache
-- **Workers:** Separate service on Railway/Render or AWS Lambda
-- **Object Storage:** AWS S3, Cloudflare R2, or Backblaze B2
+- **Frontend:** Vercel or Netlify (static React app)
+- **Backend API:** Railway, Render, or VPS (FastAPI with Uvicorn)
+- **Database:** Railway Postgres, Supabase, or managed PostgreSQL
+- **Cron Jobs:** Same server as backend or separate service
 
 **Alternative (Self-hosted):**
-- Docker Compose for development
-- Kubernetes for production
-- All services containerized
+- Docker Compose for development and production
+- Single VPS with PostgreSQL, FastAPI, and React build
+- Systemd for cron jobs or system crontab
 
 ### 10.2 Scalability Considerations
 
 1. **Database:**
-   - Read replicas for analytics queries
-   - Connection pooling (PgBouncer)
-   - Partitioning old data
-   - Archive to cold storage after 2 years
+   - Connection pooling with SQLAlchemy
+   - TimescaleDB for time-series optimization
+   - Partitioning old data by month
+   - Simple query optimization
 
 2. **API:**
-   - Horizontal scaling with load balancer
-   - Response caching with Redis
-   - CDN for static assets
-   - Rate limiting per user/IP
+   - Uvicorn with multiple workers
+   - CDN for React static assets
+   - Basic rate limiting in FastAPI
 
-3. **Workers:**
-   - Separate worker pools for different tasks
-   - Auto-scaling based on queue depth
-   - Retry logic with exponential backoff
-   - Dead letter queue for failures
+3. **Cron Jobs:**
+   - Run on separate schedule to avoid overlap
+   - Process items in batches (e.g., 100 articles at a time)
+   - Retry logic with exponential backoff for failed LLM calls
 
 4. **LLM Costs:**
    - Batch processing to reduce API calls
-   - Cache LLM responses
-   - Use cheaper models for re-classification
-   - Consider fine-tuned models for cost reduction
+   - Cache LLM responses in database
+   - Use cheaper models (GPT-3.5-turbo, Claude Haiku)
+   - Consider local LLM for high volume
 
 ### 10.3 Monitoring & Observability
 
-- **Application Monitoring:** Sentry or New Relic
-- **Logs:** Structured logging with Winston/Pino
-- **Metrics:** Prometheus + Grafana
-- **Uptime:** UptimeRobot or Pingdom
-- **Dashboards:** Track:
+- **Logs:** Python logging to file/stdout
+- **Cron Monitoring:** Simple success/failure logs
+- **Basic Metrics:** Track in database:
   - RSS fetch success rates
   - Content scraping success rates
-  - LLM classification accuracy (sample reviews)
-  - API latency and error rates
-  - Database query performance
-  - Queue depths and processing times
+  - LLM classification completion rates
+  - API response times (FastAPI built-in)
 
 ## 11. Security & Privacy
 
 ### 11.1 Security Measures
 
 1. **API Security:**
-   - Rate limiting (per IP and per user)
-   - API key authentication for programmatic access
-   - CORS configuration
-   - Input validation and sanitization
-   - SQL injection prevention (parameterized queries)
-   - XSS prevention
+   - Basic rate limiting in FastAPI
+   - CORS configuration for frontend domain
+   - Input validation with Pydantic
+   - SQL injection prevention (SQLAlchemy ORM)
+   - Environment variables for secrets
 
 2. **Data Security:**
-   - Encryption at rest (database encryption)
-   - Encryption in transit (HTTPS/TLS)
-   - Secure credential storage (secrets manager)
-   - Regular security audits
-   - Dependency vulnerability scanning
-
-3. **Privacy:**
-   - No personal user tracking without consent
-   - GDPR-compliant data handling
-   - Option to exclude sensitive content (e.g., victim names)
-   - Anonymization options for research exports
-
-### 11.2 Content Moderation
-
-- Filter extremely graphic content from summaries
-- Ethical handling of sensitive cases (minors, sexual violence)
-- Option for users to flag inappropriate content
-- Balance between transparency and dignity
+   - HTTPS/TLS for API
+   - Secure environment variable management
+   - Database connection encryption
 
 ## 12. Testing Strategy
 
-### 12.1 Automated Testing
+### 12.1 Basic Testing
 
-1. **Unit Tests:**
-   - LLM response parsing
+1. **Unit Tests (Python/pytest):**
+   - LLM response parsing functions
    - Text extraction utilities
    - Classification logic
-   - API controllers
+   - API endpoint logic
 
 2. **Integration Tests:**
-   - RSS fetching pipeline
+   - RSS fetching end-to-end
    - Content scraping workflow
-   - LLM classification end-to-end
-   - API endpoints
+   - Database operations
 
-3. **End-to-End Tests:**
-   - User flows (search, filter, view)
-   - Dashboard interactions
-   - Data export
+3. **Manual Testing:**
+   - Dashboard UI interactions
+   - Chart rendering
+   - Filter functionality
 
-### 12.2 Data Quality Tests
+### 12.2 Data Quality
 
-- RSS feed validity checks
-- Classification accuracy sampling (manual review)
-- Deduplication effectiveness
-- Geographic extraction accuracy
-
-### 12.3 Performance Tests
-
-- Load testing API endpoints
-- Database query performance benchmarks
-- Frontend rendering with large datasets
-- Worker throughput testing
+- Manual RSS feed validity checks
+- Spot-check LLM classifications for accuracy
+- Monitor deduplication effectiveness
 
 ## 13. Development Phases
 
 ### Phase 1: MVP (Core Infrastructure)
-- [ ] Basic RSS feed fetching for 10 major sources
-- [ ] PostgreSQL schema and data models
+- [ ] PostgreSQL schema setup with TimescaleDB
+- [ ] Python scripts for RSS fetching (10 major sources)
 - [ ] Content scraping pipeline
-- [ ] LLM classification with OpenAI
-- [ ] Basic REST API
-- [ ] Simple React dashboard with one chart type
-- [ ] Manual configuration (JSON files)
-
-**Estimated Timeline:** 4-6 weeks
-
-### Phase 2: Enhanced Features
-- [ ] Add 50+ RSS sources (regional coverage)
-- [ ] Multi-LLM provider support
-- [ ] Advanced filtering and search
-- [ ] Multiple visualization types
-- [ ] Geographic visualizations
-- [ ] Configuration UI
-- [ ] Export functionality
-
-**Estimated Timeline:** 4-6 weeks
-
-### Phase 3: Analytics & Insights
-- [ ] Automated anomaly detection
-- [ ] Trend analysis
-- [ ] Correlation insights
-- [ ] Comparative analytics
-- [ ] Email reports
-- [ ] Alert system
+- [ ] LLM classification with configurable provider
+- [ ] FastAPI REST endpoints
+- [ ] React dashboard with Chart.js (pure black theme)
+- [ ] Basic filtering and search
+- [ ] YAML configuration files
+- [ ] Makefile for ops
 
 **Estimated Timeline:** 3-4 weeks
 
-### Phase 4: Polish & Scale
+### Phase 2: Enhanced Features
+- [ ] Add 50+ RSS sources (regional coverage)
+- [ ] Multiple Chart.js visualization types
+- [ ] Geographic bar charts by state
+- [ ] Correlation matrix
+- [ ] Multi-language headline display
 - [ ] Performance optimizations
-- [ ] Advanced caching strategies
-- [ ] Mobile-responsive design
-- [ ] Accessibility improvements
-- [ ] Documentation
-- [ ] Deployment automation
-- [ ] Monitoring dashboards
 
 **Estimated Timeline:** 2-3 weeks
+
+### Phase 3: Polish & Production
+- [ ] Mobile-responsive design
+- [ ] Deployment setup
+- [ ] Documentation
+- [ ] Basic monitoring
+- [ ] Production hardening
+
+**Estimated Timeline:** 1-2 weeks
 
 ## 14. Configuration Files Structure
 
@@ -1132,120 +1025,198 @@ config/
     └── summarization.txt     # Summary generation prompt
 ```
 
-## 15. Future Enhancements
+## 15. Makefile for Operations
 
-### Phase 5+ Ideas:
+The project includes a Makefile for common operations:
 
-1. **Advanced NLP:**
-   - Sentiment analysis
-   - Entity relationship extraction
-   - Event timeline reconstruction
-   - Fact-checking integration
+```makefile
+.PHONY: help install setup-db dev-api dev-frontend cron-fetch cron-scrape cron-classify test clean
 
-2. **Social Features:**
-   - User accounts and profiles
-   - Community annotations/corrections
-   - Discussion forums for incidents
-   - Crowdsourced verification
+help:  ## Show this help message
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-3. **Data Partnerships:**
-   - Share anonymized data with researchers
-   - Partner with NGOs for impact tracking
-   - Government transparency integrations
-   - RTI (Right to Information) correlation
+# Setup
+install:  ## Install Python and Node dependencies
+	cd backend && pip install -r requirements.txt
+	cd frontend && npm install
 
-4. **Mobile App:**
-   - Native iOS/Android apps
-   - Push notifications for alerts
-   - Offline reading
+setup-db:  ## Setup database schema and TimescaleDB
+	cd backend && python -m scripts.setup_database
 
-5. **AI Enhancements:**
-   - Predictive analytics (forecasting trends)
-   - Root cause analysis
-   - Policy recommendation engine
-   - Automated report generation
+migrate:  ## Run database migrations
+	cd backend && alembic upgrade head
 
-6. **Multilingual:**
-   - Support for Hindi, Tamil, Bengali, etc.
-   - Automatic translation
-   - Language-specific LLM models
+seed-feeds:  ## Seed initial RSS sources from config
+	cd backend && python -m scripts.seed_rss_sources
 
-7. **Media Analysis:**
-   - Image/video analysis from news
-   - Verify authenticity of media
-   - Extract text from images (OCR)
+# Development
+dev-api:  ## Run FastAPI development server
+	cd backend && uvicorn app.main:app --reload --port 8000
 
-8. **API for Developers:**
-   - Public API for researchers
-   - GraphQL endpoint
-   - Webhooks for real-time data
-   - SDKs in multiple languages
+dev-frontend:  ## Run React development server
+	cd frontend && npm run dev
 
-## 16. Success Metrics
+dev: ## Run both API and frontend in parallel
+	make -j 2 dev-api dev-frontend
 
-### Key Performance Indicators (KPIs):
+# Cron Jobs
+cron-fetch:  ## Fetch RSS feeds
+	cd backend && python -m scripts.fetch_rss
+
+cron-scrape:  ## Scrape article content
+	cd backend && python -m scripts.scrape_content
+
+cron-classify:  ## Classify articles with LLM
+	cd backend && python -m scripts.classify_articles
+
+cron-all:  ## Run all cron jobs sequentially
+	make cron-fetch && make cron-scrape && make cron-classify
+
+# Testing
+test:  ## Run tests
+	cd backend && pytest tests/
+	cd frontend && npm run test
+
+test-coverage:  ## Run tests with coverage
+	cd backend && pytest --cov=app tests/
+
+# Database
+db-shell:  ## Open PostgreSQL shell
+	psql $(DATABASE_URL)
+
+db-backup:  ## Backup database
+	pg_dump $(DATABASE_URL) > backup_$(shell date +%Y%m%d_%H%M%S).sql
+
+# Deployment
+build-frontend:  ## Build frontend for production
+	cd frontend && npm run build
+
+deploy-frontend:  ## Deploy frontend to Vercel/Netlify
+	cd frontend && npm run deploy
+
+docker-build:  ## Build Docker images
+	docker-compose build
+
+docker-up:  ## Start Docker containers
+	docker-compose up -d
+
+docker-down:  ## Stop Docker containers
+	docker-compose down
+
+# Utilities
+clean:  ## Clean temporary files and caches
+	find . -type d -name __pycache__ -exec rm -rf {} +
+	find . -type f -name "*.pyc" -delete
+	cd frontend && rm -rf node_modules/.cache
+
+logs:  ## Tail application logs
+	tail -f backend/logs/app.log
+
+# Crontab setup (run once on server)
+install-cron:  ## Install cron jobs in crontab
+	@echo "*/5 * * * * cd $(PWD) && make cron-fetch >> /var/log/newstrack/cron.log 2>&1" | crontab -
+	@echo "*/10 * * * * cd $(PWD) && make cron-scrape >> /var/log/newstrack/cron.log 2>&1" | crontab -
+	@echo "*/10 * * * * cd $(PWD) && make cron-classify >> /var/log/newstrack/cron.log 2>&1" | crontab -
+	@echo "Cron jobs installed successfully"
+
+remove-cron:  ## Remove cron jobs from crontab
+	crontab -r
+```
+
+**Usage Examples:**
+
+```bash
+# Initial setup
+make install
+make setup-db
+make seed-feeds
+
+# Development
+make dev              # Run both API and frontend
+make dev-api          # Run only API
+make dev-frontend     # Run only frontend
+
+# Run cron jobs manually
+make cron-all         # Run all jobs
+make cron-fetch       # Fetch RSS feeds only
+
+# Install as system cron
+make install-cron     # Install to crontab
+
+# Testing
+make test             # Run all tests
+make test-coverage    # With coverage report
+
+# Production deployment
+make build-frontend
+make deploy-frontend
+make docker-up
+```
+
+## 16. Future Enhancements (Phase 4+)
+
+Potential future additions:
+
+1. **Enhanced Visualizations:**
+   - India map choropleth with Chart.js geo plugin
+   - Animation between time periods
+   - More chart types (radar, polar)
+
+2. **Better Language Support:**
+   - Automatic translation of headlines
+   - Language-specific LLM models for better classification
+   - Support for more Indian languages (Tamil, Bengali, etc.)
+
+3. **Data Insights:**
+   - Basic anomaly detection (simple statistical thresholds)
+   - Email digest reports
+
+4. **API for Researchers:**
+   - Public read-only API
+   - Data export in CSV/JSON
+
+## 17. Success Metrics
+
+Simple metrics to track:
 
 1. **Data Coverage:**
    - Number of active RSS sources
-   - Geographic coverage (% of states/cities)
    - News items processed per day
-   - Classification accuracy (measured via sampling)
+   - Classification accuracy (spot checks)
 
 2. **System Performance:**
-   - RSS fetch success rate (target: >95%)
-   - Content scraping success rate (target: >80%)
-   - LLM classification completion rate (target: >90%)
-   - Average time from publication to classification (target: <1 hour)
-   - API response time (target: <500ms p95)
+   - RSS fetch success rate (target: >90%)
+   - Content scraping success rate (target: >75%)
+   - LLM classification completion rate (target: >85%)
+   - API response time (target: <1s)
 
-3. **User Engagement:**
-   - Daily active users
-   - Average session duration
-   - Most viewed categories
-   - Search queries per session
-   - Data export frequency
-
-4. **Social Impact:**
-   - Media mentions
-   - Research citations
-   - Policy discussions influenced
-   - Public awareness campaigns using the data
-
-## 17. Budget Considerations
+## 18. Budget Considerations
 
 ### Estimated Monthly Costs (at scale):
 
 1. **Infrastructure:**
-   - Database: $50-200 (Railway/Supabase)
-   - API hosting: $50-150 (Railway/Render)
-   - Redis: $20-50
-   - Object storage: $10-30
-   - CDN: $10-30
-   - **Total Infrastructure: $140-460/month**
+   - Database: $20-100 (Railway/Supabase free tier to start)
+   - API hosting: $20-50 (Railway/Render free tier to start)
+   - Frontend: $0 (Vercel/Netlify free tier)
+   - **Total Infrastructure: $40-150/month**
 
 2. **LLM API Costs:**
-   - Assuming 1000 articles/day
-   - Average 1000 tokens per classification
-   - Using GPT-4: ~$30/day = $900/month
-   - Using GPT-3.5-turbo: ~$6/day = $180/month
-   - Using Claude Haiku: ~$3/day = $90/month
-   - **Recommendation: Start with cheaper models, optimize later**
+   - Assuming 500 articles/day
+   - Average 800 tokens per classification
+   - Using GPT-3.5-turbo: ~$3/day = $90/month
+   - Using Claude Haiku: ~$2/day = $60/month
+   - Using Gemini Flash: ~$1/day = $30/month
+   - **Recommendation: Start with Gemini Flash or Claude Haiku**
 
-3. **Monitoring & Tools:**
-   - Sentry: $0-50
-   - Monitoring: $0-50
-   - **Total: $0-100/month**
+**Total Estimated Monthly Cost: $70-240/month**
 
-**Total Estimated Monthly Cost: $320-1460/month** (depending on LLM choice)
+### Cost Optimization:
+- Use free tiers during MVP
+- Batch LLM requests
+- Cache responses in database
+- Consider local LLM (Llama 3) for very high volume
 
-### Cost Optimization Strategies:
-- Use cheaper LLM models for initial classification
-- Batch processing to reduce API calls
-- Aggressive caching
-- Consider self-hosted LLM for high volume (Llama 3, etc.)
-- Use free tiers where possible during MVP
-
-## 18. Open Source Considerations
+## 19. Open Source Considerations
 
 This project could be open-sourced to:
 - Enable community contributions
@@ -1258,48 +1229,46 @@ This project could be open-sourced to:
 **Repository Structure:**
 ```
 india-news-tracker/
-├── backend/           # Node.js API and workers
-├── frontend/          # React dashboard
-├── config/            # Configuration templates
-├── database/          # Schema and migrations
-├── docs/              # Documentation
-├── scripts/           # Deployment and utility scripts
+├── backend/                  # Python/FastAPI backend
+│   ├── app/                  # FastAPI application
+│   │   ├── api/              # API routes
+│   │   ├── models/           # SQLAlchemy models
+│   │   ├── services/         # Business logic
+│   │   └── main.py           # FastAPI entry point
+│   ├── scripts/              # Cron job scripts
+│   │   ├── fetch_rss.py
+│   │   ├── scrape_content.py
+│   │   └── classify_articles.py
+│   ├── tests/                # Pytest tests
+│   ├── alembic/              # Database migrations
+│   └── requirements.txt
+├── frontend/                 # React dashboard
+│   ├── src/
+│   │   ├── components/       # React components
+│   │   ├── pages/            # Page components
+│   │   ├── hooks/            # Custom hooks
+│   │   ├── utils/            # Utilities
+│   │   └── App.tsx
+│   └── package.json
+├── config/                   # Configuration files (YAML)
+│   ├── rss-sources.yaml
+│   ├── tags.yaml
+│   ├── llm-config.yaml
+│   └── prompts/
+├── database/                 # SQL schema files
+│   └── schema.sql
+├── docker-compose.yml
+├── Makefile                  # Operations commands
 └── README.md
 ```
-
-## 19. Ethical Considerations
-
-1. **Responsible Reporting:**
-   - Avoid sensationalism
-   - Respect victim privacy
-   - Provide context, not just stats
-   - Avoid reinforcing stereotypes
-
-2. **Accuracy:**
-   - Acknowledge LLM classification is not perfect
-   - Provide confidence scores
-   - Allow corrections/feedback
-   - Regular manual audits
-
-3. **Bias Mitigation:**
-   - Monitor for source bias
-   - Ensure geographic representation
-   - Avoid over-focusing on certain types of crime
-   - Regular bias audits of classifications
-
-4. **Impact:**
-   - Partner with social organizations
-   - Provide actionable insights, not just data
-   - Consider emotional impact on users
-   - Offer resources for those affected by issues
 
 ## 20. Getting Started
 
 ### Prerequisites:
-- Node.js 20+
-- PostgreSQL 15+
-- Redis 7+
-- LLM API key (OpenAI/Anthropic/etc.)
+- Python 3.11+
+- PostgreSQL 15+ (with TimescaleDB extension)
+- Node.js 18+ (for frontend)
+- LLM API key (OpenAI/Anthropic/Google)
 
 ### Quick Start:
 ```bash
@@ -1308,52 +1277,64 @@ git clone https://github.com/yourusername/india-news-tracker.git
 cd india-news-tracker
 
 # Install dependencies
-npm install
+make install
 
 # Set up environment
 cp .env.example .env
-# Edit .env with your configuration
+# Edit .env with your DATABASE_URL and LLM API keys
 
-# Run database migrations
-npm run db:migrate
+# Setup database
+make setup-db
 
 # Seed initial RSS sources
-npm run db:seed
+make seed-feeds
 
-# Start development servers
-npm run dev:backend   # API server
-npm run dev:frontend  # React app
-npm run dev:workers   # Background workers
+# Start development servers (in separate terminals or use make dev)
+make dev-api          # FastAPI server at http://localhost:8000
+make dev-frontend     # React app at http://localhost:3000
 ```
 
 ### First Steps:
 1. Configure RSS sources in `config/rss-sources.yaml`
 2. Set up LLM API key in `.env`
 3. Customize tags in `config/tags.yaml`
-4. Run initial RSS fetch: `npm run worker:fetch-rss`
-5. Monitor classifications: `npm run worker:classify`
-6. Open dashboard: http://localhost:3000
+4. Run initial RSS fetch: `make cron-fetch`
+5. Scrape content: `make cron-scrape`
+6. Classify articles: `make cron-classify`
+7. Open dashboard: http://localhost:3000
+
+### Install as System Cron:
+```bash
+make install-cron    # Installs cron jobs to system crontab
+```
 
 ---
 
 ## Conclusion
 
-This comprehensive requirements document outlines a robust, scalable, and ethically-minded platform for tracking and analyzing serious news incidents across India. The system is designed to:
+This requirements document outlines a focused, practical platform for tracking and analyzing serious news incidents across India. The system is designed to:
 
-✅ **Aggregate** news from diverse sources
-✅ **Classify** content using configurable LLM technology
-✅ **Visualize** trends through interactive time-series dashboards
+✅ **Aggregate** news from diverse Indian RSS sources
+✅ **Classify** content using configurable LLM providers
+✅ **Visualize** trends through Chart.js time-series dashboards with pure black theme
 ✅ **Enable** data-driven social consciousness
-✅ **Scale** to handle growing data volumes
-✅ **Respect** privacy and ethical considerations
+✅ **Keep costs low** with efficient architecture and smart LLM usage
+✅ **Stay simple** with cron-based processing and minimal dependencies
 
-The modular architecture allows for incremental development, starting with an MVP and progressively adding advanced features. Every component is configurable to adapt to changing needs, sources, and technologies.
+**Tech Stack:**
+- Backend: Python + FastAPI
+- Frontend: React + Chart.js (pure black #000000 theme)
+- Database: PostgreSQL + TimescaleDB
+- Processing: Simple cron jobs (no complex queue system)
+- Ops: Makefile for all operations
 
-**Next Steps:** Review this document, refine requirements based on feedback, and begin Phase 1 development.
+The architecture is straightforward and focused on the MVP, avoiding over-engineering while keeping everything configurable for future needs.
+
+**Next Steps:** Begin Phase 1 development with focus on core functionality.
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2025-01-14
-**Author:** Claude
-**Status:** Draft - Awaiting Review
+**Document Version:** 2.0 (Simplified)
+**Last Updated:** 2025-11-14
+**Tech Stack:** Python/FastAPI, React/Chart.js, PostgreSQL
+**Status:** Ready for Implementation
