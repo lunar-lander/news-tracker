@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # PostgreSQL with TimescaleDB extension
+  db:
+    image: timescale/timescaledb:latest-pg15
+    container_name: newstrack_db
+    environment:
+      POSTGRES_USER: newstrack
+      POSTGRES_PASSWORD: newstrack_dev_password
+      POSTGRES_DB: newstrack
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U newstrack"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API (FastAPI)
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: newstrack_api
+    environment:
+      - DATABASE_URL=postgresql://newstrack:newstrack_dev_password@db:5432/newstrack
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./config:/app/config
+    depends_on:
+      db:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # pgAdmin for database management (optional, for development)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: newstrack_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@newstrack.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    profiles:
+      - dev  # Only start with: docker-compose --profile dev up
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  default:
+    name: newstrack_network
