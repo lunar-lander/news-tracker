@@ -1,4 +1,4 @@
-.PHONY: help install setup-db dev-api dev-frontend cron-fetch cron-scrape cron-classify test clean
+.PHONY: help install setup-db dev-api dev-db dev-frontend dev dev-down cron-fetch cron-scrape cron-classify test clean
 
 help:  ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -6,7 +6,7 @@ help:  ## Show this help message
 # Setup
 install:  ## Install Python and Node dependencies
 	cd backend && pip install -r requirements.txt
-	# cd frontend && npm install  # TODO: when frontend is ready
+	cd frontend && npm install
 
 setup-db:  ## Setup database with Docker
 	docker-compose up -d db
@@ -20,6 +20,9 @@ dev-api:  ## Run FastAPI development server
 
 dev-db:  ## Start only the database
 	docker-compose up -d db
+
+dev-frontend:  ## Run React frontend development server
+	cd frontend && npm run dev
 
 dev:  ## Run all services (API + DB)
 	docker-compose up
@@ -59,7 +62,7 @@ cron-all:  ## Run all cron jobs sequentially
 # Testing
 test:  ## Run tests
 	cd backend && pytest tests/
-	# cd frontend && npm run test  # TODO: when frontend is ready
+	cd frontend && npm run test
 
 test-coverage:  ## Run tests with coverage
 	cd backend && pytest --cov=app tests/
@@ -79,7 +82,7 @@ clean:  ## Clean temporary files and caches
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete
 	find . -type d -name "*.egg-info" -exec rm -rf {} + 2>/dev/null || true
-	# cd frontend && rm -rf node_modules/.cache  # TODO: when frontend is ready
+	cd frontend && rm -rf node_modules/.cache dist 2>/dev/null || true
 
 logs:  ## Tail application logs
 	docker-compose logs -f api
@@ -99,14 +102,18 @@ quickstart:  ## Quick start guide
 	@echo "2. Start the database and API:"
 	@echo "   make dev"
 	@echo ""
-	@echo "3. In another terminal, run RSS fetch:"
-	@echo "   make cron-fetch"
+	@echo "3. In another terminal, start the frontend:"
+	@echo "   make dev-frontend"
 	@echo ""
-	@echo "4. Check the API:"
-	@echo "   curl http://localhost:8000"
+	@echo "4. In another terminal, run RSS processing:"
+	@echo "   make cron-fetch    # Fetch RSS feeds"
+	@echo "   make cron-scrape   # Scrape content"
+	@echo "   make cron-classify # Classify with LLM"
 	@echo ""
-	@echo "5. View logs:"
-	@echo "   make logs"
+	@echo "5. Access the application:"
+	@echo "   Frontend:   http://localhost:5173"
+	@echo "   Backend:    http://localhost:8000"
+	@echo "   API Docs:   http://localhost:8000/docs"
 	@echo ""
 	@echo "For more commands, run: make help"
 	@echo ""
