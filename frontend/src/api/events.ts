@@ -1,5 +1,5 @@
 import apiClient from './client';
-import { EventsListResponse, EventDetail, TimeseriesResponse, GeographicDataPoint, TrendingItem, Tag, RSSSource, SearchResponse } from '../types';
+import type { EventsListResponse, EventDetail, TimeseriesResponse, GeographicDataPoint, TrendingItem, Tag, RSSSource, SearchResponse } from '../types';
 
 export interface EventsQuery {
   start_date?: string;

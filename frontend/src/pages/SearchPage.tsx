@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { eventsApi } from '../api/events';
-import { NewsEvent } from '../types';
+import type { NewsEvent } from '../types';
 import { formatDate } from '../utils/dateFormat';
 import { getTagColor } from '../utils/chartColors';
 

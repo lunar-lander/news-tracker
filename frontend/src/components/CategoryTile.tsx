@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { eventsApi } from '../api/events';
-import { TimeseriesDataPoint } from '../types';
+import type { TimeseriesDataPoint } from '../types';
 import TimeSeriesChart from './TimeSeriesChart';
 import { useAppStore } from '../stores/appStore';
-import { getTagColor } from '../utils/chartColors';
 
 interface CategoryTileProps {
   tag: string;

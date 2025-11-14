@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { NewsEvent, EventDetail, Tag } from '../types';
+import type { EventDetail, Tag } from '../types';
 
 interface AppState {
   // Date range filter (global)

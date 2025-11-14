@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { eventsApi } from '../api/events';
 import { useAppStore } from '../stores/appStore';
 import CategoryTile from '../components/CategoryTile';
-import { Tag } from '../types';
 
 const Dashboard: React.FC = () => {
   const { tags, setTags } = useAppStore();

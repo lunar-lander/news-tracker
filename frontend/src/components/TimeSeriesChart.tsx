@@ -11,7 +11,7 @@ import {
   Filler,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import { TimeseriesDataPoint } from '../types';
+import type { TimeseriesDataPoint } from '../types';
 import { formatDate } from '../utils/dateFormat';
 import { getChartColor } from '../utils/chartColors';
 
@@ -62,7 +62,7 @@ const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({
   const options = {
     responsive: true,
     maintainAspectRatio: false,
-    onClick: (event: any, elements: any[]) => {
+    onClick: (_event: any, elements: any[]) => {
       if (onClick && elements.length > 0) {
         const index = elements[0].index;
         onClick(data[index].timestamp);
