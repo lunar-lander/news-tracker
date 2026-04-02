@@ -8,9 +8,10 @@ interface CategoryTileProps {
     color: string;
     data?: BatchTimeseriesItem;
     loading?: boolean;
+    onClick?: () => void;
 }
 
-const CategoryTile: React.FC<CategoryTileProps> = ({ tag: _tag, label, color, data, loading = false }) => {
+const CategoryTile: React.FC<CategoryTileProps> = ({ tag: _tag, label, color, data, loading = false, onClick }) => {
     const timeseriesData = data?.timeseries ?? [];
     const totalCount = data?.total ?? 0;
 
@@ -41,8 +42,9 @@ const CategoryTile: React.FC<CategoryTileProps> = ({ tag: _tag, label, color, da
 
     return (
         <div
-            className={`${getTileSize()} bg-gray-900 border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-all`}
+            className={`${getTileSize()} bg-gray-900 border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-all cursor-pointer`}
             style={{ borderColor: `${color}33` }}
+            onClick={onClick}
         >
             {/* Header */}
             <div className="flex items-center justify-between mb-3">

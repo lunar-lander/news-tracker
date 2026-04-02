@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { eventsApi } from '../api/events';
+import ArticleList from '../components/ArticleList';
 import CategoryTile from '../components/CategoryTile';
 import { useAppStore } from '../stores/appStore';
-import type { BatchTimeseriesItem } from '../types';
+import type { BatchTimeseriesItem, Tag } from '../types';
 
 const Dashboard: React.FC = () => {
     const { tags, setTags, dateRange } = useAppStore();
     const [loading, setLoading] = useState(true);
     const [tagData, setTagData] = useState<Map<string, BatchTimeseriesItem>>(new Map());
+    const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
 
     // Fetch tags config
     useEffect(() => {
@@ -87,6 +89,7 @@ const Dashboard: React.FC = () => {
                         color={tag.color}
                         data={tagData.get(tag.id)}
                         loading={loading}
+                        onClick={() => setSelectedTag(tag)}
                     />
                 ))}
             </div>
@@ -95,6 +98,18 @@ const Dashboard: React.FC = () => {
                 <div className="text-center py-16">
                     <p className="text-gray-500 text-lg">No tags configured</p>
                 </div>
+            )}
+
+            {/* Article list modal */}
+            {selectedTag && (
+                <ArticleList
+                    tag={selectedTag.id}
+                    label={selectedTag.label}
+                    color={selectedTag.color}
+                    startDate={dateRange.start}
+                    endDate={dateRange.end}
+                    onClose={() => setSelectedTag(null)}
+                />
             )}
         </div>
     );
