@@ -1,5 +1,5 @@
+import type { BatchTimeseriesResponse, EventDetail, EventsListResponse, GeographicDataPoint, RSSSource, SearchResponse, Tag, TimeseriesResponse, TrendingItem } from '../types';
 import apiClient from './client';
-import type { EventsListResponse, EventDetail, TimeseriesResponse, GeographicDataPoint, TrendingItem, Tag, RSSSource, SearchResponse } from '../types';
 
 export interface EventsQuery {
   start_date?: string;
@@ -31,6 +31,14 @@ export interface GeographicQuery {
   granularity?: 'state' | 'city';
 }
 
+export interface BatchTimeseriesQuery {
+  start_date: string;
+  end_date: string;
+  tags: string;
+  granularity?: 'day' | 'week' | 'month';
+  state?: string;
+}
+
 export interface SearchQuery {
   q: string;
   start_date?: string;
@@ -57,6 +65,12 @@ export const eventsApi = {
   // Get timeseries data
   async getTimeseries(query: TimeseriesQuery): Promise<TimeseriesResponse> {
     const response = await apiClient.get('/api/v1/analytics/timeseries', { params: query });
+    return response.data;
+  },
+
+  // Get batch timeseries data for multiple tags (avoids N+1 calls)
+  async getTimeseriesBatch(query: BatchTimeseriesQuery): Promise<BatchTimeseriesResponse> {
+    const response = await apiClient.get('/api/v1/analytics/timeseries/batch', { params: query });
     return response.data;
   },
 

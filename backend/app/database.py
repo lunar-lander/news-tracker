@@ -3,7 +3,7 @@ Database connection and session management
 """
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import DeclarativeBase
 from typing import AsyncGenerator
 from app.config import settings
 
@@ -26,8 +26,10 @@ async_session_maker = async_sessionmaker(
     expire_on_commit=False,
 )
 
-# Base class for models
-Base = declarative_base()
+
+# Base class for models (SQLAlchemy 2.0 style)
+class Base(DeclarativeBase):
+    pass
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
@@ -45,10 +47,9 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 async def init_db():
     """Initialize database (create tables if they don't exist)"""
-    async with engine.begin() as conn:
-        # Note: Tables are created via SQL schema in docker-entrypoint-initdb.d
-        # This is just for programmatic table creation if needed
-        # await conn.run_sync(Base.metadata.create_all)
+    # Tables are created via SQL schema in docker-entrypoint-initdb.d
+    # Warm up the connection pool
+    async with engine.begin():
         pass
 
 

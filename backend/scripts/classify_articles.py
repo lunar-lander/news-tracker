@@ -27,8 +27,7 @@ from app.models.processing_log import ProcessingLog
 
 # Setup logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -43,9 +42,14 @@ class LLMClassifier:
 
     def _load_prompt(self) -> str:
         """Load classification prompt template"""
-        prompt_path = Path(__file__).parent.parent.parent / 'config' / 'prompts' / 'classification.txt'
+        prompt_path = (
+            Path(__file__).parent.parent.parent
+            / "config"
+            / "prompts"
+            / "classification.txt"
+        )
         try:
-            with open(prompt_path, 'r', encoding='utf-8') as f:
+            with open(prompt_path, "r", encoding="utf-8") as f:
                 return f.read()
         except Exception as e:
             logger.error(f"Failed to load classification prompt: {e}")
@@ -53,150 +57,257 @@ class LLMClassifier:
 
     def _get_enabled_tags(self) -> List[str]:
         """Get list of enabled tags"""
-        enabled = self.tags_config.get('enabled_categories', [])
+        enabled = self.tags_config.get("enabled_categories", [])
         return enabled
 
     def _build_prompt(self, article_text: str, headline: str) -> str:
         """Build classification prompt with article text"""
         enabled_tags = self._get_enabled_tags()
-        tags_list = ', '.join(enabled_tags)
+        tags_list = ", ".join(enabled_tags)
 
-        prompt = self.classification_prompt.replace('{article_text}', article_text)
-        prompt = prompt.replace('{headline}', headline)
-        prompt = prompt.replace('{tags_list}', tags_list)
+        prompt = self.classification_prompt.replace("{article_text}", article_text)
+        prompt = prompt.replace("{available_tags}", tags_list)
 
         return prompt
 
-    async def classify_with_gemini(self, prompt: str) -> Optional[Dict[str, Any]]:
-        """Classify using Google Gemini"""
-        try:
-            import google.generativeai as genai
+    @staticmethod
+    def _clean_json(text: str) -> Optional[Dict[str, Any]]:
+        """Try hard to extract valid JSON from LLM response text."""
+        # Strip markdown code fences
+        text = re.sub(r"```(?:json)?\s*", "", text).strip()
 
-            api_key = settings.google_api_key
+        # Find JSON object
+        json_match = re.search(r"\{.*\}", text, re.DOTALL)
+        if not json_match:
+            return None
+
+        raw = json_match.group()
+
+        # First attempt: parse directly
+        try:
+            return json.loads(raw)  # type: ignore[no-any-return]
+        except json.JSONDecodeError:
+            pass
+
+        # Fix common LLM JSON errors: trailing commas before } or ]
+        cleaned = re.sub(r",\s*([}\]])", r"\1", raw)
+        try:
+            return json.loads(cleaned)  # type: ignore[no-any-return]
+        except json.JSONDecodeError:
+            pass
+
+        # Fix unescaped quotes inside string values
+        try:
+            # More aggressive: replace single quotes with double
+            cleaned2 = raw.replace("'", '"')
+            cleaned2 = re.sub(r",\s*([}\]])", r"\1", cleaned2)
+            return json.loads(cleaned2)  # type: ignore[no-any-return]
+        except json.JSONDecodeError:
+            return None
+
+    async def classify_with_gemini(
+        self, prompt: str, provider_cfg: Optional[Dict[str, Any]] = None
+    ) -> Optional[Dict[str, Any]]:
+        """Classify using Google Gemini (google.genai SDK)"""
+        try:
+            from google import genai  # type: ignore[import-not-found]
+            from google.genai import types  # type: ignore[import-not-found]
+
+            cfg = provider_cfg or self.llm_config.get("primary") or {}
+            api_key = cfg.get("api_key") or settings.google_api_key
             if not api_key:
                 logger.error("GOOGLE_API_KEY not set")
                 return None
 
-            genai.configure(api_key=api_key)
+            client: Any = genai.Client(api_key=api_key)
 
-            model_name = self.llm_config['llm']['model']
-            model = genai.GenerativeModel(model_name)
-
+            model_name = cfg.get("model", "gemini-2.5-flash")
             logger.info(f"Calling Gemini API with model {model_name}")
 
-            response = model.generate_content(
-                prompt,
-                generation_config={
-                    'temperature': self.llm_config['llm']['temperature'],
-                    'max_output_tokens': self.llm_config['llm']['max_tokens'],
-                }
+            response: Any = client.models.generate_content(
+                model=model_name,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    temperature=cfg.get("temperature", 0.2),
+                    max_output_tokens=cfg.get("max_tokens", 2048),
+                    response_mime_type="application/json",
+                ),
             )
 
             # Extract text from response
-            response_text = response.text
+            response_text: str = response.text
 
             # Try to parse JSON from response
-            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
-            if json_match:
-                result = json.loads(json_match.group())
-                result['_raw_response'] = response_text
-                result['_tokens_used'] = response.usage_metadata.total_token_count if hasattr(response, 'usage_metadata') else 0
+            result = self._clean_json(response_text)
+            if result:
+                result["_raw_response"] = response_text
+                result["_tokens_used"] = (
+                    response.usage_metadata.total_token_count
+                    if hasattr(response, "usage_metadata") and response.usage_metadata
+                    else 0
+                )
                 return result
             else:
-                logger.error("Could not find JSON in Gemini response")
+                logger.error(
+                    "Could not find valid JSON in Gemini response: %s",
+                    response_text[:200],
+                )
                 return None
 
         except Exception as e:
             logger.error(f"Gemini classification failed: {e}")
             return None
 
-    async def classify_with_claude(self, prompt: str) -> Optional[Dict[str, Any]]:
+    async def classify_with_claude(
+        self, prompt: str, provider_cfg: Optional[Dict[str, Any]] = None
+    ) -> Optional[Dict[str, Any]]:
         """Classify using Anthropic Claude"""
         try:
-            from anthropic import AsyncAnthropic
+            from anthropic import AsyncAnthropic  # type: ignore[import-not-found]
 
-            api_key = settings.anthropic_api_key
+            cfg = provider_cfg or self.llm_config.get("fallback") or {}
+            api_key = cfg.get("api_key") or settings.anthropic_api_key
             if not api_key:
                 logger.error("ANTHROPIC_API_KEY not set")
                 return None
 
-            client = AsyncAnthropic(api_key=api_key)
+            client: Any = AsyncAnthropic(api_key=api_key)  # type: ignore[reportUnknownVariableType]
 
-            fallback_model = self.llm_config['llm'].get('fallback_model', 'claude-3-haiku-20240307')
-            logger.info(f"Calling Claude API with model {fallback_model}")
+            model = cfg.get("model", "claude-haiku-4-20250414")
+            logger.info(f"Calling Claude API with model {model}")
 
-            message = await client.messages.create(
-                model=fallback_model,
-                max_tokens=self.llm_config['llm']['max_tokens'],
-                temperature=self.llm_config['llm']['temperature'],
-                messages=[
-                    {"role": "user", "content": prompt}
-                ]
+            message: Any = await client.messages.create(
+                model=model,
+                max_tokens=cfg.get("max_tokens", 2048),
+                temperature=cfg.get("temperature", 0.2),
+                messages=[{"role": "user", "content": prompt}],
             )
 
-            response_text = message.content[0].text
+            response_text: str = message.content[0].text
 
             # Try to parse JSON
-            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
-            if json_match:
-                result = json.loads(json_match.group())
-                result['_raw_response'] = response_text
-                result['_tokens_used'] = message.usage.input_tokens + message.usage.output_tokens
+            result = self._clean_json(response_text)
+            if result:
+                result["_raw_response"] = response_text
+                result["_tokens_used"] = (
+                    message.usage.input_tokens + message.usage.output_tokens
+                )
                 return result
             else:
-                logger.error("Could not find JSON in Claude response")
+                logger.error("Could not find valid JSON in Claude response")
                 return None
 
         except Exception as e:
             logger.error(f"Claude classification failed: {e}")
             return None
 
-    async def classify(self, article_text: str, headline: str) -> Optional[Dict[str, Any]]:
-        """Classify article with fallback logic"""
+    async def classify_with_openai(
+        self, prompt: str, provider_cfg: Optional[Dict[str, Any]] = None
+    ) -> Optional[Dict[str, Any]]:
+        """Classify using OpenAI"""
+        try:
+            from openai import AsyncOpenAI  # type: ignore[import-not-found]
+
+            cfg = provider_cfg or self.llm_config.get("openai") or {}
+            api_key = cfg.get("api_key") or settings.openai_api_key
+            if not api_key:
+                logger.error("OPENAI_API_KEY not set")
+                return None
+
+            client: Any = AsyncOpenAI(api_key=api_key)  # type: ignore[reportUnknownVariableType]
+
+            model = cfg.get("model", "gpt-4.1-mini")
+            logger.info(f"Calling OpenAI API with model {model}")
+
+            response: Any = await client.chat.completions.create(
+                model=model,
+                max_tokens=cfg.get("max_tokens", 2048),
+                temperature=cfg.get("temperature", 0.2),
+                messages=[{"role": "user", "content": prompt}],
+            )
+
+            response_text: str = response.choices[0].message.content or ""
+
+            result = self._clean_json(response_text)
+            if result:
+                result["_raw_response"] = response_text
+                result["_tokens_used"] = (
+                    response.usage.total_tokens if response.usage else 0
+                )
+                return result
+            else:
+                logger.error("Could not find valid JSON in OpenAI response")
+                return None
+
+        except Exception as e:
+            logger.error(f"OpenAI classification failed: {e}")
+            return None
+
+    def _get_classify_fn(self, provider: str):
+        """Return the classify coroutine for the given provider name."""
+        dispatch = {
+            "google": self.classify_with_gemini,
+            "gemini": self.classify_with_gemini,
+            "anthropic": self.classify_with_claude,
+            "openai": self.classify_with_openai,
+        }
+        return dispatch.get(provider)
+
+    async def classify(
+        self, article_text: str, headline: str
+    ) -> Optional[Dict[str, Any]]:
+        """Classify article using dynamically resolved primary/fallback providers."""
         prompt = self._build_prompt(article_text, headline)
 
-        # Try primary provider (Gemini)
-        primary_provider = self.llm_config['llm']['provider']
-        if primary_provider == 'google':
-            result = await self.classify_with_gemini(prompt)
+        # Try primary provider
+        primary_cfg = self.llm_config.get("primary", {})
+        primary_provider = primary_cfg.get("provider", "google")
+        classify_fn = self._get_classify_fn(primary_provider)
+
+        if classify_fn:
+            result = await classify_fn(prompt, primary_cfg)
             if result:
-                result['_provider'] = 'google'
-                result['_model'] = self.llm_config['llm']['model']
+                result["_provider"] = primary_provider
+                result["_model"] = primary_cfg.get("model", "unknown")
                 return result
 
-        # Fallback to Claude
-        logger.warning("Primary LLM failed, trying fallback (Claude)")
-        result = await self.classify_with_claude(prompt)
-        if result:
-            result['_provider'] = 'anthropic'
-            result['_model'] = self.llm_config['llm'].get('fallback_model', 'claude-3-haiku-20240307')
-            return result
+        # Try fallback provider
+        fallback_cfg = self.llm_config.get("fallback")
+        if fallback_cfg:
+            fallback_provider = fallback_cfg.get("provider", "anthropic")
+            logger.warning(
+                f"Primary LLM ({primary_provider}) failed, trying fallback ({fallback_provider})"
+            )
+            classify_fn = self._get_classify_fn(fallback_provider)
+            if classify_fn:
+                result = await classify_fn(prompt, fallback_cfg)
+                if result:
+                    result["_provider"] = fallback_provider
+                    result["_model"] = fallback_cfg.get("model", "unknown")
+                    return result
 
         logger.error("All LLM providers failed")
         return None
 
 
 async def store_classification(
-    article: Article,
-    entry: RSSEntry,
-    source: RSSSource,
-    llm_result: Dict[str, Any]
+    article: Article, entry: RSSEntry, source: RSSSource, llm_result: Dict[str, Any]
 ) -> Optional[int]:
     """Store classification and create news event"""
     try:
         async with async_session_maker() as session:
             # Extract data from LLM result
-            tags = llm_result.get('tags', [])
-            tag_confidences = llm_result.get('tag_confidences', {})
-            summary = llm_result.get('summary', '')
-            severity = llm_result.get('severity', 'medium')
-            incident_date_str = llm_result.get('incident_date')
-            state = llm_result.get('state')
-            city = llm_result.get('city')
-            district = llm_result.get('district')
-            location_confidence = llm_result.get('location_confidence', 0.0)
-            persons = llm_result.get('persons', [])
-            organizations = llm_result.get('organizations', [])
+            tags = llm_result.get("tags", [])
+            tag_confidences = llm_result.get("tag_confidences", {})
+            summary = llm_result.get("summary", "")
+            severity = llm_result.get("severity", "medium")
+            incident_date_str = llm_result.get("incident_date")
+            state = llm_result.get("state")
+            city = llm_result.get("city")
+            district = llm_result.get("district")
+            location_confidence = llm_result.get("location_confidence", 0.0)
+            persons = llm_result.get("persons", [])
+            organizations = llm_result.get("organizations", [])
 
             # Parse incident date
             incident_date = None
@@ -207,15 +318,17 @@ async def store_classification(
                     pass
 
             # Calculate LLM cost (rough estimate)
-            tokens_used = llm_result.get('_tokens_used', 0)
-            cost_per_million = 0.075 if llm_result.get('_provider') == 'google' else 0.25
+            tokens_used = llm_result.get("_tokens_used", 0)
+            cost_per_million = (
+                0.075 if llm_result.get("_provider") == "google" else 0.25
+            )
             cost_usd = (tokens_used / 1_000_000) * cost_per_million
 
             # Create classification record
             classification = Classification(
                 article_id=article.id,
-                llm_provider=llm_result.get('_provider'),
-                llm_model=llm_result.get('_model'),
+                llm_provider=llm_result.get("_provider"),
+                llm_model=llm_result.get("_model"),
                 classified_at=datetime.now(timezone.utc),
                 tags=tags,
                 tag_confidences=tag_confidences,
@@ -256,12 +369,19 @@ async def store_classification(
             )
             session.add(news_event)
 
-            # Update RSS entry status
-            entry.processing_status = 'completed'
+            # Re-fetch entry within this session to avoid detached object issue
+            entry_result = await session.execute(
+                select(RSSEntry).where(RSSEntry.id == entry.id)
+            )
+            entry_obj = entry_result.scalar_one_or_none()
+            if entry_obj:
+                entry_obj.processing_status = "completed"
 
             await session.commit()
 
-            logger.info(f"Stored classification {classification.id} for article {article.id}")
+            logger.info(
+                f"Stored classification {classification.id} for article {article.id}"
+            )
             return classification.id
 
     except Exception as e:
@@ -269,12 +389,14 @@ async def store_classification(
         return None
 
 
-async def classify_article(article: Article, classifier: LLMClassifier) -> Dict[str, Any]:
+async def classify_article(
+    article: Article, classifier: LLMClassifier
+) -> Dict[str, Any]:
     """Classify a single article"""
-    result = {
-        'article_id': article.id,
-        'success': False,
-        'error_message': None,
+    result: Dict[str, Any] = {
+        "article_id": article.id,
+        "success": False,
+        "error_message": None,
     }
 
     try:
@@ -286,7 +408,7 @@ async def classify_article(article: Article, classifier: LLMClassifier) -> Dict[
             entry = entry_result.scalar_one_or_none()
 
             if not entry:
-                result['error_message'] = "RSS entry not found"
+                result["error_message"] = "RSS entry not found"
                 return result
 
             source_result = await session.execute(
@@ -295,14 +417,15 @@ async def classify_article(article: Article, classifier: LLMClassifier) -> Dict[
             source = source_result.scalar_one_or_none()
 
             if not source:
-                result['error_message'] = "RSS source not found"
+                result["error_message"] = "RSS source not found"
                 return result
 
         # Classify with LLM
-        llm_result = await classifier.classify(article.extracted_text, entry.title)
+        article_text = article.extracted_text or ""
+        llm_result = await classifier.classify(article_text, entry.title)
 
         if not llm_result:
-            result['error_message'] = "LLM classification failed"
+            result["error_message"] = "LLM classification failed"
             # Update status to failed
             async with async_session_maker() as session:
                 entry_update = await session.execute(
@@ -310,25 +433,27 @@ async def classify_article(article: Article, classifier: LLMClassifier) -> Dict[
                 )
                 entry_obj = entry_update.scalar_one_or_none()
                 if entry_obj:
-                    entry_obj.processing_status = 'classification_failed'
+                    entry_obj.processing_status = "classification_failed"
                     await session.commit()
             return result
 
         # Store classification
-        classification_id = await store_classification(article, entry, source, llm_result)
+        classification_id = await store_classification(
+            article, entry, source, llm_result
+        )
 
         if classification_id:
-            result['success'] = True
-            result['classification_id'] = classification_id
+            result["success"] = True
+            result["classification_id"] = classification_id
             logger.info(f"Successfully classified article {article.id}")
         else:
-            result['error_message'] = "Failed to store classification"
+            result["error_message"] = "Failed to store classification"
 
         return result
 
     except Exception as e:
         logger.error(f"Error classifying article {article.id}: {e}")
-        result['error_message'] = str(e)
+        result["error_message"] = str(e)
         return result
 
 
@@ -342,7 +467,7 @@ async def classify_pending_articles(batch_size: int = 20):
         log = ProcessingLog(
             job_type="llm_classification",
             status="running",
-            metadata={"started_at": datetime.now(timezone.utc).isoformat()}
+            meta_data={"started_at": datetime.now(timezone.utc).isoformat()},
         )
         session.add(log)
         await session.commit()
@@ -361,7 +486,7 @@ async def classify_pending_articles(batch_size: int = 20):
         result = await session.execute(
             select(Article)
             .join(RSSEntry, Article.rss_entry_id == RSSEntry.id)
-            .where(RSSEntry.processing_status == 'scraped')
+            .where(RSSEntry.processing_status == "scraped")
             .limit(batch_size)
         )
         articles = result.scalars().all()
@@ -372,7 +497,7 @@ async def classify_pending_articles(batch_size: int = 20):
             result = await classify_article(article, classifier)
             total_processed += 1
 
-            if result['success']:
+            if result["success"]:
                 total_success += 1
             else:
                 total_failed += 1
@@ -398,7 +523,9 @@ async def classify_pending_articles(batch_size: int = 20):
             }
             await session.commit()
 
-    logger.info(f"Classification completed: {total_success} success, {total_failed} failed out of {total_processed} total")
+    logger.info(
+        f"Classification completed: {total_success} success, {total_failed} failed out of {total_processed} total"
+    )
 
 
 async def main():

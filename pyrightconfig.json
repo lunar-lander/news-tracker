@@ -1,0 +1,13 @@
+{
+  "include": [
+    "backend/app",
+    "backend/scripts"
+  ],
+  "typeCheckingMode": "standard",
+  "reportUnknownMemberType": false,
+  "reportUnknownVariableType": false,
+  "reportUnknownArgumentType": false,
+  "reportUnknownParameterType": false,
+  "reportMissingTypeStubs": false,
+  "reportMissingModuleSource": false
+}

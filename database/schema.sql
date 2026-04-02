@@ -18,12 +18,12 @@ CREATE TABLE rss_sources (
   priority VARCHAR(20),  -- high, medium, low
   refresh_interval INTEGER DEFAULT 300,  -- seconds
   enabled BOOLEAN DEFAULT true,
-  last_fetched_at TIMESTAMP,
-  last_success_at TIMESTAMP,
+  last_fetched_at TIMESTAMPTZ,
+  last_success_at TIMESTAMPTZ,
   consecutive_failures INTEGER DEFAULT 0,
   meta_data JSONB,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE INDEX idx_rss_sources_enabled ON rss_sources(enabled);
@@ -40,12 +40,12 @@ CREATE TABLE rss_entries (
   title TEXT NOT NULL,
   description TEXT,
   link TEXT NOT NULL,
-  published_at TIMESTAMP NOT NULL,
+  published_at TIMESTAMPTZ NOT NULL,
   author VARCHAR(255),
   raw_data JSONB,  -- Original RSS item
   content_hash VARCHAR(64),  -- For deduplication
   processing_status VARCHAR(50) DEFAULT 'pending',  -- pending, processing, completed, failed
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE INDEX idx_rss_entries_published ON rss_entries(published_at DESC);
@@ -64,11 +64,11 @@ CREATE TABLE articles (
   extracted_text TEXT,  -- Clean text for LLM
   word_count INTEGER,
   language VARCHAR(50),
-  scraped_at TIMESTAMP,
+  scraped_at TIMESTAMPTZ,
   scraping_method VARCHAR(100),
   scraping_success BOOLEAN,
   error_message TEXT,
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE INDEX idx_articles_entry ON articles(rss_entry_id);
@@ -84,7 +84,7 @@ CREATE TABLE classifications (
   article_id INTEGER REFERENCES articles(id) ON DELETE CASCADE,
   llm_provider VARCHAR(50),
   llm_model VARCHAR(100),
-  classified_at TIMESTAMP DEFAULT NOW(),
+  classified_at TIMESTAMPTZ DEFAULT NOW(),
 
   -- Primary classifications
   tags VARCHAR(100)[],  -- Array of tags
@@ -108,7 +108,7 @@ CREATE TABLE classifications (
   llm_tokens_used INTEGER,
   llm_cost_usd DECIMAL(10, 6),
 
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE INDEX idx_classifications_article ON classifications(article_id);
@@ -122,7 +122,7 @@ CREATE INDEX idx_classifications_state ON classifications(state);
 -- ============================================================================
 
 CREATE TABLE news_events (
-  id SERIAL PRIMARY KEY,
+  id SERIAL,
   rss_entry_id INTEGER REFERENCES rss_entries(id) ON DELETE CASCADE,
   article_id INTEGER REFERENCES articles(id) ON DELETE CASCADE,
   classification_id INTEGER REFERENCES classifications(id) ON DELETE CASCADE,
@@ -132,7 +132,7 @@ CREATE TABLE news_events (
   summary TEXT,
   source_name VARCHAR(255),
   source_url TEXT,
-  published_at TIMESTAMP NOT NULL,
+  published_at TIMESTAMPTZ NOT NULL,
   incident_date DATE,
 
   -- Categories
@@ -145,7 +145,10 @@ CREATE TABLE news_events (
   city VARCHAR(100),
   region VARCHAR(100),
 
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+
+  -- TimescaleDB requires partitioning column in primary key
+  PRIMARY KEY (id, published_at)
 );
 
 CREATE INDEX idx_news_events_published ON news_events(published_at DESC);
@@ -166,8 +169,8 @@ SELECT create_hypertable('news_events', 'published_at', if_not_exists => TRUE);
 CREATE TABLE processing_logs (
   id SERIAL PRIMARY KEY,
   job_type VARCHAR(50) NOT NULL,  -- rss_fetch, scrape, classify
-  started_at TIMESTAMP DEFAULT NOW(),
-  completed_at TIMESTAMP,
+  started_at TIMESTAMPTZ DEFAULT NOW(),
+  completed_at TIMESTAMPTZ,
   status VARCHAR(20),  -- running, completed, failed
   items_processed INTEGER DEFAULT 0,
   items_failed INTEGER DEFAULT 0,

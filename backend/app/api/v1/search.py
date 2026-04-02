@@ -5,18 +5,18 @@ Search API Endpoints
 from typing import Optional, List
 from datetime import datetime
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import select, func, or_
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
 
 from app.database import get_db
-from app.models.news_event import NewsEvent
 
 router = APIRouter(prefix="/api/v1/search", tags=["search"])
 
 
 class SearchResultItem(BaseModel):
     """Search result item"""
+
     id: int
     headline: str
     summary: Optional[str]
@@ -30,6 +30,7 @@ class SearchResultItem(BaseModel):
 
 class SearchResponse(BaseModel):
     """Search response"""
+
     results: List[SearchResultItem]
     total: int
 
@@ -46,50 +47,70 @@ async def search_events(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Search news events by headline
+    Search news events by headline using PostgreSQL full-text search.
+    Uses the GIN tsvector index on news_events.headline for performance.
     """
-    # Build base query with text search
-    query = select(NewsEvent).where(
-        NewsEvent.headline.ilike(f"%{q}%")
-    )
+    # Build parameterized query with full-text search
+    filters = ["to_tsvector('english', headline) @@ plainto_tsquery('english', :query)"]
+    params = {"query": q, "limit": limit, "offset": offset}
 
-    # Apply date filters
     if start_date:
         try:
-            start_dt = datetime.fromisoformat(start_date)
-            query = query.where(NewsEvent.published_at >= start_dt)
+            datetime.fromisoformat(start_date)
+            filters.append("published_at >= :start_dt")
+            params["start_dt"] = start_date
         except ValueError:
             pass
 
     if end_date:
         try:
-            end_dt = datetime.fromisoformat(end_date)
-            query = query.where(NewsEvent.published_at <= end_dt)
+            datetime.fromisoformat(end_date)
+            filters.append("published_at <= :end_dt")
+            params["end_dt"] = end_date
         except ValueError:
             pass
 
-    # Apply tag filter
     if tags:
         tag_list = [t.strip() for t in tags.split(",")]
-        query = query.where(NewsEvent.all_tags.overlap(tag_list))
+        filters.append("all_tags && :tag_arr::varchar[]")
+        params["tag_arr"] = tag_list
 
-    # Apply state filter
     if state:
-        query = query.where(NewsEvent.state == state)
+        filters.append("state = :state")
+        params["state"] = state
+
+    where_clause = " AND ".join(filters)
 
     # Count total
-    count_query = select(func.count()).select_from(query.subquery())
-    total_result = await db.execute(count_query)
+    count_sql = text(f"SELECT COUNT(*) FROM news_events WHERE {where_clause}")
+    total_result = await db.execute(count_sql, params)
     total = total_result.scalar()
 
-    # Apply pagination and sort by relevance (most recent first)
-    query = query.order_by(NewsEvent.published_at.desc()).limit(limit).offset(offset)
-
-    # Execute query
-    result = await db.execute(query)
-    events = result.scalars().all()
-
-    return SearchResponse(
-        results=[SearchResultItem.model_validate(event) for event in events],
-        total=total
+    # Fetch results sorted by relevance then recency
+    sql = text(
+        f"""
+        SELECT id, headline, summary, published_at, all_tags, state
+        FROM news_events
+        WHERE {where_clause}
+        ORDER BY ts_rank(to_tsvector('english', headline), plainto_tsquery('english', :query)) DESC,
+                 published_at DESC
+        LIMIT :limit OFFSET :offset
+    """
     )
+
+    result = await db.execute(sql, params)
+    rows = result.fetchall()
+
+    results = [
+        SearchResultItem(
+            id=row.id,
+            headline=row.headline,
+            summary=row.summary,
+            published_at=row.published_at,
+            all_tags=row.all_tags or [],
+            state=row.state,
+        )
+        for row in rows
+    ]
+
+    return SearchResponse(results=results, total=total)

@@ -1,16 +1,15 @@
-version: '3.8'
-
 services:
   # PostgreSQL with TimescaleDB extension
   db:
     image: timescale/timescaledb:latest-pg15
     container_name: newstrack_db
+    env_file: .env
     environment:
-      POSTGRES_USER: newstrack
-      POSTGRES_PASSWORD: newstrack_dev_password
-      POSTGRES_DB: newstrack
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
@@ -26,13 +25,11 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: newstrack_api
+    env_file: .env
     environment:
-      - DATABASE_URL=postgresql://newstrack:newstrack_dev_password@db:5432/newstrack
-      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - ENVIRONMENT=development
-      - LOG_LEVEL=info
+      # Override host for Docker internal networking
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
     ports:
       - "8000:8000"
     volumes:

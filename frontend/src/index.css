@@ -1,6 +1,23 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Custom theme (Tailwind v4) */
+@theme {
+  --color-app-black: #000000;
+  --color-app-white: #FFFFFF;
+  --color-primary: #FF6B6B;
+  --color-secondary: #4ECDC4;
+  --color-success: #95E1D3;
+  --color-warning: #FFD93D;
+  --color-danger: #F38181;
+  --color-chart-1: #FF6B6B;
+  --color-chart-2: #4ECDC4;
+  --color-chart-3: #FFD93D;
+  --color-chart-4: #95E1D3;
+  --color-chart-5: #F38181;
+  --color-chart-6: #A8E6CF;
+  --color-chart-7: #FF8B94;
+  --color-chart-8: #C7CEEA;
+}
 
 /* Pure black theme */
 body {

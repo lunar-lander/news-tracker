@@ -1,22 +1,23 @@
 """
 Analytics API Endpoints
+Uses TimescaleDB time_bucket() for efficient time-series aggregation.
 """
 
-from datetime import datetime, timedelta
-from typing import Optional, List
+from datetime import datetime, timedelta, timezone
+from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, Depends, Query, HTTPException
-from sqlalchemy import select, func, and_
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
 
 from app.database import get_db
-from app.models.news_event import NewsEvent
 
 router = APIRouter(prefix="/api/v1/analytics", tags=["analytics"])
 
 
 class TimeseriesDataPoint(BaseModel):
     """Single data point in time series"""
+
     timestamp: datetime
     count: int
     breakdown: Optional[dict] = None
@@ -24,12 +25,28 @@ class TimeseriesDataPoint(BaseModel):
 
 class TimeseriesResponse(BaseModel):
     """Time series response"""
+
     timeseries: List[TimeseriesDataPoint]
     summary: dict
 
 
+class BatchTimeseriesItem(BaseModel):
+    """Timeseries data for a single tag in a batch request"""
+
+    tag: str
+    timeseries: List[TimeseriesDataPoint]
+    total: int
+
+
+class BatchTimeseriesResponse(BaseModel):
+    """Batch timeseries response for multiple tags"""
+
+    items: List[BatchTimeseriesItem]
+
+
 class GeographicDataPoint(BaseModel):
     """Geographic distribution data point"""
+
     state: str
     count: int
     breakdown: Optional[dict] = None
@@ -37,11 +54,13 @@ class GeographicDataPoint(BaseModel):
 
 class GeographicResponse(BaseModel):
     """Geographic response"""
+
     geographic: List[GeographicDataPoint]
 
 
 class TrendingItem(BaseModel):
     """Trending tag item"""
+
     tag: str
     current_count: int
     previous_count: int
@@ -51,7 +70,30 @@ class TrendingItem(BaseModel):
 
 class TrendingResponse(BaseModel):
     """Trending response"""
+
     trending: List[TrendingItem]
+
+
+def _validate_dates(start_date: str, end_date: str):
+    """Parse and validate date strings"""
+    try:
+        start_dt = datetime.fromisoformat(start_date)
+        end_dt = datetime.fromisoformat(end_date)
+        return start_dt, end_dt
+    except ValueError:
+        raise HTTPException(
+            status_code=400, detail="Invalid date format. Use ISO format (YYYY-MM-DD)."
+        )
+
+
+def _granularity_to_interval(granularity: str) -> str:
+    """Convert granularity string to PostgreSQL interval"""
+    mapping = {"day": "1 day", "week": "1 week", "month": "1 month"}
+    if granularity not in mapping:
+        raise HTTPException(
+            status_code=400, detail="Invalid granularity. Use: day, week, month"
+        )
+    return mapping[granularity]
 
 
 @router.get("/timeseries", response_model=TimeseriesResponse)
@@ -66,108 +108,179 @@ async def get_timeseries(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Get time series data for news events
+    Get time series data for news events using TimescaleDB time_bucket().
     """
-    try:
-        start_dt = datetime.fromisoformat(start_date)
-        end_dt = datetime.fromisoformat(end_date)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid date format")
+    start_dt, end_dt = _validate_dates(start_date, end_date)
+    interval = _granularity_to_interval(granularity)
 
-    # Determine time bucket based on granularity
-    if granularity == "day":
-        bucket_hours = 24
-    elif granularity == "week":
-        bucket_hours = 24 * 7
-    elif granularity == "month":
-        bucket_hours = 24 * 30
-    else:
-        raise HTTPException(status_code=400, detail="Invalid granularity")
+    # Build parameterized SQL with time_bucket
+    filters = ["published_at >= :start_dt", "published_at <= :end_dt"]
+    params: Dict[str, Any] = {
+        "start_dt": start_dt,
+        "end_dt": end_dt,
+    }
 
-    # Build base query
-    query = select(NewsEvent).where(
-        and_(
-            NewsEvent.published_at >= start_dt,
-            NewsEvent.published_at <= end_dt,
-        )
-    )
-
-    # Apply filters
     if tag:
-        query = query.where(NewsEvent.all_tags.contains([tag]))
+        filters.append(":tag = ANY(all_tags)")
+        params["tag"] = tag
     elif tags:
         tag_list = [t.strip() for t in tags.split(",")]
-        query = query.where(NewsEvent.all_tags.overlap(tag_list))
+        filters.append("all_tags && CAST(:tag_arr AS varchar[])")
+        params["tag_arr"] = tag_list
 
     if state:
-        query = query.where(NewsEvent.state == state)
+        filters.append("state = :state")
+        params["state"] = state
 
-    # Execute query
-    result = await db.execute(query)
-    events = result.scalars().all()
+    where_clause = " AND ".join(filters)
 
-    # Group events by time bucket
-    timeseries_data = {}
-    total_count = 0
+    # Main aggregation query using time_bucket
+    sql = text(
+        f"""
+        SELECT
+            time_bucket('{interval}', published_at) AS bucket,
+            COUNT(*) AS count
+        FROM news_events
+        WHERE {where_clause}
+        GROUP BY bucket
+        ORDER BY bucket
+    """
+    )
+    result = await db.execute(sql, params)
+    rows = result.fetchall()
 
-    for event in events:
-        # Calculate bucket timestamp
-        if granularity == "day":
-            bucket = event.published_at.replace(hour=0, minute=0, second=0, microsecond=0)
-        elif granularity == "week":
-            days_since_monday = event.published_at.weekday()
-            bucket = (event.published_at - timedelta(days=days_since_monday)).replace(hour=0, minute=0, second=0, microsecond=0)
-        else:  # month
-            bucket = event.published_at.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    timeseries_list = [
+        {"timestamp": row.bucket, "count": row.count, "breakdown": {}} for row in rows
+    ]
 
-        bucket_str = bucket.isoformat()
+    # If group_by requested, run a second query for breakdown
+    if group_by in ("tag", "state", "severity"):
+        group_col = {"tag": "primary_tag", "state": "state", "severity": "severity"}[
+            group_by
+        ]
+        breakdown_sql = text(
+            f"""
+            SELECT
+                time_bucket('{interval}', published_at) AS bucket,
+                {group_col} AS group_key,
+                COUNT(*) AS count
+            FROM news_events
+            WHERE {where_clause} AND {group_col} IS NOT NULL
+            GROUP BY bucket, group_key
+            ORDER BY bucket
+        """
+        )
+        bd_result = await db.execute(breakdown_sql, params)
+        bd_rows = bd_result.fetchall()
 
-        if bucket_str not in timeseries_data:
-            timeseries_data[bucket_str] = {
-                "timestamp": bucket,
-                "count": 0,
-                "breakdown": {}
-            }
+        # Build lookup: bucket -> {key: count}
+        breakdown_map: Dict[datetime, Dict[str, int]] = {}
+        for row in bd_rows:
+            breakdown_map.setdefault(row.bucket, {})[row.group_key] = row.count
 
-        timeseries_data[bucket_str]["count"] += 1
-        total_count += 1
+        for item in timeseries_list:
+            item["breakdown"] = breakdown_map.get(item["timestamp"], {})
 
-        # Add to breakdown if group_by specified
-        if group_by == "tag" and event.primary_tag:
-            tag_key = event.primary_tag
-            timeseries_data[bucket_str]["breakdown"][tag_key] = \
-                timeseries_data[bucket_str]["breakdown"].get(tag_key, 0) + 1
-        elif group_by == "state" and event.state:
-            state_key = event.state
-            timeseries_data[bucket_str]["breakdown"][state_key] = \
-                timeseries_data[bucket_str]["breakdown"].get(state_key, 0) + 1
-        elif group_by == "severity" and event.severity:
-            severity_key = event.severity
-            timeseries_data[bucket_str]["breakdown"][severity_key] = \
-                timeseries_data[bucket_str]["breakdown"].get(severity_key, 0) + 1
-
-    # Convert to list and sort by timestamp
-    timeseries_list = sorted(timeseries_data.values(), key=lambda x: x["timestamp"])
-
-    # Calculate summary stats
+    # Summary stats
+    total_count = sum(item["count"] for item in timeseries_list)
     counts = [item["count"] for item in timeseries_list]
     average = sum(counts) / len(counts) if counts else 0
-
-    peak_item = max(timeseries_list, key=lambda x: x["count"]) if timeseries_list else None
+    peak_item = (
+        max(timeseries_list, key=lambda x: x["count"]) if timeseries_list else None
+    )
 
     summary = {
         "total": total_count,
         "average": round(average, 2),
-        "peak": {
-            "count": peak_item["count"],
-            "date": peak_item["timestamp"],
-        } if peak_item else None
+        "peak": (
+            {
+                "count": peak_item["count"],
+                "date": peak_item["timestamp"],
+            }
+            if peak_item
+            else None
+        ),
     }
 
     return TimeseriesResponse(
         timeseries=[TimeseriesDataPoint(**item) for item in timeseries_list],
-        summary=summary
+        summary=summary,
     )
+
+
+@router.get("/timeseries/batch", response_model=BatchTimeseriesResponse)
+async def get_timeseries_batch(
+    start_date: str = Query(..., description="Start date (ISO format)"),
+    end_date: str = Query(..., description="End date (ISO format)"),
+    tags: str = Query(..., description="Comma-separated list of tags"),
+    granularity: str = Query("day", description="Granularity: day, week, month"),
+    state: Optional[str] = Query(None, description="Filter by state"),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Get time series data for multiple tags in a single query.
+    Used by the dashboard to avoid N+1 API calls.
+    """
+    start_dt, end_dt = _validate_dates(start_date, end_date)
+    interval = _granularity_to_interval(granularity)
+
+    tag_list = [t.strip() for t in tags.split(",") if t.strip()]
+    if not tag_list:
+        raise HTTPException(status_code=400, detail="At least one tag required")
+
+    filters = ["published_at >= :start_dt", "published_at <= :end_dt"]
+    params: Dict[str, Any] = {
+        "start_dt": start_dt,
+        "end_dt": end_dt,
+        "tag_arr": tag_list,
+    }
+
+    if state:
+        filters.append("state = :state")
+        params["state"] = state
+
+    where_clause = " AND ".join(filters)
+
+    # Single query: get per-tag timeseries using unnest
+    sql = text(
+        f"""
+        SELECT
+            tag,
+            time_bucket('{interval}', published_at) AS bucket,
+            COUNT(*) AS count
+        FROM news_events, unnest(all_tags) AS tag
+        WHERE {where_clause}
+          AND tag = ANY(:tag_arr)
+        GROUP BY tag, bucket
+        ORDER BY tag, bucket
+    """
+    )
+
+    result = await db.execute(sql, params)
+    rows = result.fetchall()
+
+    # Group results by tag
+    tag_data: Dict[str, List[Dict]] = {t: [] for t in tag_list}
+    tag_totals: Dict[str, int] = {t: 0 for t in tag_list}
+
+    for row in rows:
+        if row.tag in tag_data:
+            tag_data[row.tag].append({"timestamp": row.bucket, "count": row.count})
+            tag_totals[row.tag] += row.count
+
+    items = [
+        BatchTimeseriesItem(
+            tag=t,
+            timeseries=[
+                TimeseriesDataPoint(timestamp=d["timestamp"], count=d["count"])
+                for d in tag_data.get(t, [])
+            ],
+            total=tag_totals.get(t, 0),
+        )
+        for t in tag_list
+    ]
+
+    return BatchTimeseriesResponse(items=items)
 
 
 @router.get("/geographic", response_model=GeographicResponse)
@@ -179,59 +292,75 @@ async def get_geographic(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Get geographic distribution of news events
+    Get geographic distribution of news events using SQL aggregation.
     """
-    try:
-        start_dt = datetime.fromisoformat(start_date)
-        end_dt = datetime.fromisoformat(end_date)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid date format")
+    start_dt, end_dt = _validate_dates(start_date, end_date)
 
-    # Build query
-    query = select(NewsEvent).where(
-        and_(
-            NewsEvent.published_at >= start_dt,
-            NewsEvent.published_at <= end_dt,
+    if granularity not in ("state", "city"):
+        raise HTTPException(
+            status_code=400, detail="Granularity must be 'state' or 'city'"
         )
-    )
+
+    geo_col = "state" if granularity == "state" else "city"
+
+    filters = [
+        "published_at >= :start_dt",
+        "published_at <= :end_dt",
+        f"{geo_col} IS NOT NULL",
+    ]
+    params: Dict[str, Any] = {"start_dt": start_dt, "end_dt": end_dt}
 
     if tag:
-        query = query.where(NewsEvent.all_tags.contains([tag]))
+        filters.append(":tag = ANY(all_tags)")
+        params["tag"] = tag
 
-    # Execute query
-    result = await db.execute(query)
-    events = result.scalars().all()
+    where_clause = " AND ".join(filters)
 
-    # Group by geography
-    geo_data = {}
-
-    for event in events:
-        if granularity == "state":
-            geo_key = event.state if event.state else "Unknown"
-        else:  # city
-            geo_key = event.city if event.city else "Unknown"
-
-        if geo_key not in geo_data:
-            geo_data[geo_key] = {
-                "state" if granularity == "state" else "city": geo_key,
-                "count": 0,
-                "breakdown": {}
-            }
-
-        geo_data[geo_key]["count"] += 1
-
-        # Add tag breakdown
-        if event.primary_tag:
-            tag_key = event.primary_tag
-            geo_data[geo_key]["breakdown"][tag_key] = \
-                geo_data[geo_key]["breakdown"].get(tag_key, 0) + 1
-
-    # Convert to list and sort by count
-    geo_list = sorted(geo_data.values(), key=lambda x: x["count"], reverse=True)
-
-    return GeographicResponse(
-        geographic=[GeographicDataPoint(**item) for item in geo_list]
+    # Main geographic aggregation
+    sql = text(
+        f"""
+        SELECT
+            {geo_col} AS geo_key,
+            COUNT(*) AS count
+        FROM news_events
+        WHERE {where_clause}
+        GROUP BY geo_key
+        ORDER BY count DESC
+    """
     )
+    result = await db.execute(sql, params)
+    rows = result.fetchall()
+
+    # Get tag breakdown per geography
+    breakdown_sql = text(
+        f"""
+        SELECT
+            {geo_col} AS geo_key,
+            primary_tag,
+            COUNT(*) AS count
+        FROM news_events
+        WHERE {where_clause} AND primary_tag IS NOT NULL
+        GROUP BY geo_key, primary_tag
+        ORDER BY geo_key, count DESC
+    """
+    )
+    bd_result = await db.execute(breakdown_sql, params)
+    bd_rows = bd_result.fetchall()
+
+    breakdown_map: Dict[str, Dict[str, int]] = {}
+    for row in bd_rows:
+        breakdown_map.setdefault(row.geo_key, {})[row.primary_tag] = row.count
+
+    geographic = [
+        GeographicDataPoint(
+            state=row.geo_key,
+            count=row.count,
+            breakdown=breakdown_map.get(row.geo_key, {}),
+        )
+        for row in rows
+    ]
+
+    return GeographicResponse(geographic=geographic)
 
 
 @router.get("/trending", response_model=TrendingResponse)
@@ -241,9 +370,9 @@ async def get_trending(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Get trending tags (increasing in frequency)
+    Get trending tags (increasing in frequency) using SQL aggregation.
+    Compares current period vs previous period of same length.
     """
-    # Parse timeframe
     if timeframe == "24h":
         hours = 24
     elif timeframe == "7d":
@@ -251,72 +380,64 @@ async def get_trending(
     elif timeframe == "30d":
         hours = 24 * 30
     else:
-        raise HTTPException(status_code=400, detail="Invalid timeframe")
+        raise HTTPException(
+            status_code=400, detail="Invalid timeframe. Use: 24h, 7d, 30d"
+        )
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     current_start = now - timedelta(hours=hours)
     previous_start = now - timedelta(hours=hours * 2)
-    previous_end = current_start
 
-    # Get current period events
-    current_query = select(NewsEvent).where(
-        NewsEvent.published_at >= current_start
+    # Single query with conditional aggregation for both periods
+    sql = text(
+        """
+        SELECT
+            primary_tag AS tag,
+            COUNT(*) FILTER (WHERE published_at >= :current_start) AS current_count,
+            COUNT(*) FILTER (WHERE published_at >= :previous_start AND published_at < :current_start) AS previous_count
+        FROM news_events
+        WHERE published_at >= :previous_start
+          AND primary_tag IS NOT NULL
+        GROUP BY primary_tag
+        HAVING COUNT(*) FILTER (WHERE published_at >= :current_start) > 0
+        ORDER BY current_count DESC
+        LIMIT :limit
+    """
     )
-    current_result = await db.execute(current_query)
-    current_events = current_result.scalars().all()
 
-    # Get previous period events
-    previous_query = select(NewsEvent).where(
-        and_(
-            NewsEvent.published_at >= previous_start,
-            NewsEvent.published_at < previous_end,
-        )
+    result = await db.execute(
+        sql,
+        {
+            "current_start": current_start,
+            "previous_start": previous_start,
+            "limit": limit,
+        },
     )
-    previous_result = await db.execute(previous_query)
-    previous_events = previous_result.scalars().all()
+    rows = result.fetchall()
 
-    # Count tags in each period
-    current_tags = {}
-    for event in current_events:
-        if event.primary_tag:
-            current_tags[event.primary_tag] = current_tags.get(event.primary_tag, 0) + 1
-
-    previous_tags = {}
-    for event in previous_events:
-        if event.primary_tag:
-            previous_tags[event.primary_tag] = previous_tags.get(event.primary_tag, 0) + 1
-
-    # Calculate trends
     trending_items = []
-    for tag, current_count in current_tags.items():
-        previous_count = previous_tags.get(tag, 0)
+    for row in rows:
+        current = row.current_count
+        previous = row.previous_count
 
-        # Calculate percentage change
-        if previous_count == 0:
-            percentage_change = 100.0 if current_count > 0 else 0.0
+        if previous == 0:
+            pct = 100.0 if current > 0 else 0.0
         else:
-            percentage_change = ((current_count - previous_count) / previous_count) * 100
+            pct = ((current - previous) / previous) * 100
 
-        # Determine trend direction
-        if percentage_change > 10:
-            trend = "up"
-        elif percentage_change < -10:
-            trend = "down"
-        else:
-            trend = "stable"
+        trend = "up" if pct > 10 else ("down" if pct < -10 else "stable")
 
         trending_items.append(
             TrendingItem(
-                tag=tag,
-                current_count=current_count,
-                previous_count=previous_count,
-                percentage_change=round(percentage_change, 2),
+                tag=row.tag,
+                current_count=current,
+                previous_count=previous,
+                percentage_change=round(pct, 2),
                 trend=trend,
             )
         )
 
-    # Sort by percentage change (descending) and limit
+    # Re-sort by percentage change
     trending_items.sort(key=lambda x: x.percentage_change, reverse=True)
-    trending_items = trending_items[:limit]
 
     return TrendingResponse(trending=trending_items)

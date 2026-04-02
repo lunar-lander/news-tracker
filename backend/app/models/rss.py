@@ -2,43 +2,61 @@
 RSS Source and Entry models
 """
 
-from sqlalchemy import Column, Integer, String, Text, Boolean, TIMESTAMP, ForeignKey, JSON
+from datetime import datetime
+from typing import Any, Optional
+
+from sqlalchemy import TIMESTAMP, ForeignKey, String, Text
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
+from sqlalchemy.types import JSON
+
 from app.database import Base
 
 
 class RSSSource(Base):
     __tablename__ = "rss_sources"
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(255), nullable=False)
-    url = Column(Text, nullable=False, unique=True)
-    category = Column(String(100))
-    language = Column(String(50))
-    region = Column(String(100))
-    priority = Column(String(20))
-    refresh_interval = Column(Integer, default=300)
-    enabled = Column(Boolean, default=True)
-    last_fetched_at = Column(TIMESTAMP)
-    last_success_at = Column(TIMESTAMP)
-    consecutive_failures = Column(Integer, default=0)
-    meta_data = Column(JSON)
-    created_at = Column(TIMESTAMP, server_default=func.now())
-    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String(255))
+    url: Mapped[str] = mapped_column(Text, unique=True)
+    category: Mapped[Optional[str]] = mapped_column(String(100), default=None)
+    language: Mapped[Optional[str]] = mapped_column(String(50), default=None)
+    region: Mapped[Optional[str]] = mapped_column(String(100), default=None)
+    priority: Mapped[Optional[str]] = mapped_column(String(20), default=None)
+    refresh_interval: Mapped[int] = mapped_column(default=300)
+    enabled: Mapped[bool] = mapped_column(default=True)
+    last_fetched_at: Mapped[Optional[datetime]] = mapped_column(
+        TIMESTAMP(timezone=True), default=None
+    )
+    last_success_at: Mapped[Optional[datetime]] = mapped_column(
+        TIMESTAMP(timezone=True), default=None
+    )
+    consecutive_failures: Mapped[int] = mapped_column(default=0)
+    meta_data: Mapped[Optional[Any]] = mapped_column(JSON, default=None)
+    created_at: Mapped[Optional[datetime]] = mapped_column(
+        TIMESTAMP(timezone=True), server_default=func.now()
+    )
+    updated_at: Mapped[Optional[datetime]] = mapped_column(
+        TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
 
 class RSSEntry(Base):
     __tablename__ = "rss_entries"
 
-    id = Column(Integer, primary_key=True, index=True)
-    source_id = Column(Integer, ForeignKey("rss_sources.id", ondelete="CASCADE"))
-    guid = Column(Text, unique=True, nullable=False)
-    title = Column(Text, nullable=False)
-    description = Column(Text)
-    link = Column(Text, nullable=False)
-    published_at = Column(TIMESTAMP, nullable=False)
-    author = Column(String(255))
-    raw_data = Column(JSON)
-    content_hash = Column(String(64))
-    processing_status = Column(String(50), default="pending")
-    created_at = Column(TIMESTAMP, server_default=func.now())
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    source_id: Mapped[int] = mapped_column(
+        ForeignKey("rss_sources.id", ondelete="CASCADE")
+    )
+    guid: Mapped[str] = mapped_column(Text, unique=True)
+    title: Mapped[str] = mapped_column(Text)
+    description: Mapped[Optional[str]] = mapped_column(Text, default=None)
+    link: Mapped[str] = mapped_column(Text)
+    published_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True))
+    author: Mapped[Optional[str]] = mapped_column(String(255), default=None)
+    raw_data: Mapped[Optional[Any]] = mapped_column(JSON, default=None)
+    content_hash: Mapped[Optional[str]] = mapped_column(String(64), default=None)
+    processing_status: Mapped[str] = mapped_column(String(50), default="pending")
+    created_at: Mapped[Optional[datetime]] = mapped_column(
+        TIMESTAMP, server_default=func.now()
+    )

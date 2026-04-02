@@ -42,6 +42,16 @@ export interface TimeseriesResponse {
   };
 }
 
+export interface BatchTimeseriesItem {
+  tag: string;
+  timeseries: TimeseriesDataPoint[];
+  total: number;
+}
+
+export interface BatchTimeseriesResponse {
+  items: BatchTimeseriesItem[];
+}
+
 export interface GeographicDataPoint {
   state: string;
   count: number;
