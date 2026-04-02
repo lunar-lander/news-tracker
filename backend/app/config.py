@@ -50,7 +50,10 @@ class Settings(BaseSettings):
     cors_origins: str = Field(default="*")  # Comma-separated origins, or * for dev
 
     class Config:
-        env_file = Path(__file__).resolve().parent.parent.parent / ".env"
+        # Local dev: ../../../.env relative to backend/app/config.py
+        # Docker:    /app/.env via volume mount
+        _local = Path(__file__).resolve().parent.parent.parent / ".env"
+        env_file = str(_local) if _local.is_file() else "/app/.env"
         env_file_encoding = "utf-8"
         case_sensitive = False
 
