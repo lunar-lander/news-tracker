@@ -58,7 +58,7 @@ async def apply_schema():
     """Apply schema from schema.sql if not already present"""
     backend_root = Path(__file__).resolve().parent.parent
     candidates = [
-        backend_root / "database" / "schema.sql",        # Docker: /app/database/schema.sql
+        backend_root / "database" / "schema.sql",  # Docker: /app/database/schema.sql
         backend_root.parent / "database" / "schema.sql",  # Local dev
     ]
     schema_path = next((p for p in candidates if p.exists()), None)
