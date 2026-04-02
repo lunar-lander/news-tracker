@@ -94,8 +94,8 @@ def get_config_path() -> Path:
     # backend root: parent of 'app/' package → /app in Docker, or <project>/backend locally
     backend_root = Path(__file__).resolve().parent.parent
     candidates = [
-        backend_root / "config",           # Docker: /app/config
-        backend_root.parent / "config",    # Local dev: <project>/config
+        backend_root / "config",  # Docker: /app/config
+        backend_root.parent / "config",  # Local dev: <project>/config
     ]
     for config_dir in candidates:
         if config_dir.exists():

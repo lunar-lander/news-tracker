@@ -70,10 +70,9 @@ const Dashboard: React.FC = () => {
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="mb-8">
-                <h2 className="text-3xl font-bold text-white mb-2">
-                    News Dashboard
+                <h2 className="text-3xl font-bold text-white mb-2 text-center">
                 </h2>
-                <p className="text-gray-400">
+                <p className="text-gray-400 text-center">
                     Real-time tracking of incidents across India
                 </p>
             </div>
