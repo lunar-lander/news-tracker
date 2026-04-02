@@ -43,6 +43,33 @@ services:
       - db
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
+  # Data pipeline worker (fetch → scrape → classify loop)
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: newstrack_worker
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      FETCH_INTERVAL: "${FETCH_INTERVAL:-300}"
+      SCRAPE_INTERVAL: "${SCRAPE_INTERVAL:-120}"
+      CLASSIFY_INTERVAL: "${CLASSIFY_INTERVAL:-120}"
+      SCRAPE_BATCH_SIZE: "${SCRAPE_BATCH_SIZE:-50}"
+      CLASSIFY_BATCH_SIZE: "${CLASSIFY_BATCH_SIZE:-20}"
+    volumes:
+      - ./backend:/app
+      - ./config:/app/config
+      - ./.env:/app/.env:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    links:
+      - db
+    restart: unless-stopped
+    command: python -m scripts.worker
+
   # Frontend (React + Vite)
   frontend:
     build:
