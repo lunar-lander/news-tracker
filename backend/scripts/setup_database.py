@@ -56,10 +56,15 @@ async def check_schema():
 
 async def apply_schema():
     """Apply schema from schema.sql if not already present"""
-    schema_path = Path(__file__).parent.parent.parent / "database" / "schema.sql"
+    backend_root = Path(__file__).resolve().parent.parent
+    candidates = [
+        backend_root / "database" / "schema.sql",        # Docker: /app/database/schema.sql
+        backend_root.parent / "database" / "schema.sql",  # Local dev
+    ]
+    schema_path = next((p for p in candidates if p.exists()), None)
 
-    if not schema_path.exists():
-        logger.error(f"Schema file not found: {schema_path}")
+    if schema_path is None:
+        logger.error(f"Schema file not found (searched: {candidates})")
         sys.exit(1)
 
     schema_sql = schema_path.read_text(encoding="utf-8")

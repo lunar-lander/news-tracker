@@ -17,7 +17,7 @@ from sqlalchemy import select
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from app.config import load_llm_config, load_tags_config, settings
+from app.config import get_config_path, load_llm_config, load_tags_config, settings
 from app.database import async_session_maker
 from app.models.article import Article
 from app.models.rss import RSSEntry, RSSSource
@@ -42,12 +42,7 @@ class LLMClassifier:
 
     def _load_prompt(self) -> str:
         """Load classification prompt template"""
-        prompt_path = (
-            Path(__file__).parent.parent.parent
-            / "config"
-            / "prompts"
-            / "classification.txt"
-        )
+        prompt_path = get_config_path() / "prompts" / "classification.txt"
         try:
             with open(prompt_path, "r", encoding="utf-8") as f:
                 return f.read()
