@@ -41,7 +41,7 @@ const CategoryTile: React.FC<CategoryTileProps> = ({ tag: _tag, label, color, da
 
     return (
         <div
-            className={`${getTileSize()} bg-gray-900 border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-all cursor-pointer`}
+            className={`${getTileSize()} bg-gray-900 border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-all`}
             style={{ borderColor: `${color}33` }}
         >
             {/* Header */}
