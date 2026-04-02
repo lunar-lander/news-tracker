@@ -3,6 +3,11 @@
     "backend/app",
     "backend/scripts"
   ],
+  "extraPaths": [
+    "backend"
+  ],
+  "venvPath": ".",
+  "venv": ".venv",
   "typeCheckingMode": "standard",
   "reportUnknownMemberType": false,
   "reportUnknownVariableType": false,
