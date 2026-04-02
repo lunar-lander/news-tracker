@@ -4,6 +4,7 @@ Loads configuration from YAML files and environment variables
 """
 
 import logging
+import os
 from pathlib import Path
 from typing import Any, Dict, List
 import yaml
@@ -77,15 +78,31 @@ settings = Settings()
 
 
 def get_config_path() -> Path:
-    """Get the path to the config directory"""
-    # Try to find config directory
-    current_dir = Path(__file__).parent
-    config_dir = current_dir.parent.parent / "config"
+    """Get the path to the config directory.
 
-    if not config_dir.exists():
-        raise FileNotFoundError(f"Config directory not found at {config_dir}")
+    Resolution order:
+      1. CONFIG_DIR env var (explicit override)
+      2. <backend_root>/config  — works in Docker (/app/config via volume mount)
+      3. <project_root>/config  — works in local dev (backend/../config)
+    """
+    env_override = os.environ.get("CONFIG_DIR")
+    if env_override:
+        p = Path(env_override)
+        if p.exists():
+            return p
 
-    return config_dir
+    # backend root: parent of 'app/' package → /app in Docker, or <project>/backend locally
+    backend_root = Path(__file__).resolve().parent.parent
+    candidates = [
+        backend_root / "config",           # Docker: /app/config
+        backend_root.parent / "config",    # Local dev: <project>/config
+    ]
+    for config_dir in candidates:
+        if config_dir.exists():
+            return config_dir
+
+    searched = ", ".join(str(c) for c in candidates)
+    raise FileNotFoundError(f"Config directory not found (searched: {searched})")
 
 
 def load_yaml_config(filename: str) -> Dict[str, Any]:
