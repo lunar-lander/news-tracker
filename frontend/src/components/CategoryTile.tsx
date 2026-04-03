@@ -8,10 +8,11 @@ interface CategoryTileProps {
     color: string;
     data?: BatchTimeseriesItem;
     loading?: boolean;
+    rank?: number;
     onClick?: () => void;
 }
 
-const CategoryTile: React.FC<CategoryTileProps> = ({ tag: _tag, label, color, data, loading = false, onClick }) => {
+const CategoryTile: React.FC<CategoryTileProps> = ({ tag: _tag, label, color, data, loading = false, rank = 999, onClick }) => {
     const timeseriesData = data?.timeseries ?? [];
     const totalCount = data?.total ?? 0;
 
@@ -33,14 +34,14 @@ const CategoryTile: React.FC<CategoryTileProps> = ({ tag: _tag, label, color, da
     const trendIcon = trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→';
     const trendColor = trend === 'up' ? '#FF6B6B' : trend === 'down' ? '#95E1D3' : '#AAAAAA';
 
-    // Determine tile width based on volume — never span extra rows
+    // Determine tile width — only top 4 by volume may expand
+    const canExpand = rank < 4;
     const getTileSize = () => {
-        if (totalCount > 100) return 'col-span-2';
-        if (totalCount > 50) return 'col-span-2';
+        if (canExpand && totalCount > 50) return 'col-span-2';
         return 'col-span-1';
     };
 
-    const chartHeight = totalCount > 100 ? 160 : 128;
+    const chartHeight = canExpand && totalCount > 100 ? 160 : 128;
 
     return (
         <div

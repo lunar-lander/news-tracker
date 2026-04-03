@@ -84,7 +84,7 @@ const Dashboard: React.FC = () => {
                 {enabledTags
                     .filter((tag) => loading || (tagData.get(tag.id)?.total ?? 0) > 0)
                     .sort((a, b) => (tagData.get(b.id)?.total ?? 0) - (tagData.get(a.id)?.total ?? 0))
-                    .map((tag) => (
+                    .map((tag, index) => (
                         <CategoryTile
                             key={tag.id}
                             tag={tag.id}
@@ -92,6 +92,7 @@ const Dashboard: React.FC = () => {
                             color={tag.color}
                             data={tagData.get(tag.id)}
                             loading={loading}
+                            rank={index}
                             onClick={() => setSelectedTag(tag)}
                         />
                     ))}
