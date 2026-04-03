@@ -6,23 +6,6 @@
 # NATIONAL NEWS OUTLETS (ENGLISH)
 # ============================================================================
 national_english:
-  - name: "NDTV - Top Stories"
-    url: "https://feeds.feedburner.com/ndtvnews-top-stories"
-    category: "national"
-    language: "english"
-    region: "national"
-    refresh_interval: 300
-    enabled: true
-    priority: "high"
-
-  - name: "NDTV - Latest News"
-    url: "https://feeds.feedburner.com/NDTV-LatestNews"
-    category: "national"
-    language: "english"
-    region: "national"
-    refresh_interval: 300
-    enabled: true
-    priority: "high"
 
   - name: "The Hindu"
     url: "https://www.thehindu.com/feeder/default.rss"
@@ -585,15 +568,6 @@ sports:
     enabled: true
     priority: "high"
 
-  - name: "NDTV Sports"
-    url: "https://feeds.feedburner.com/ndtvsports-latest"
-    category: "sports"
-    language: "english"
-    region: "national"
-    refresh_interval: 300
-    enabled: true
-    priority: "high"
-
   - name: "Sportskeeda"
     url: "https://www.sportskeeda.com/feed"
     category: "sports"
@@ -750,15 +724,6 @@ hindi_news:
     refresh_interval: 600
     enabled: true
     priority: "medium"
-
-  - name: "NDTV Hindi"
-    url: "https://feeds.feedburner.com/ndtvkhabar"
-    category: "national"
-    language: "hindi"
-    region: "national"
-    refresh_interval: 600
-    enabled: true
-    priority: "high"
 
   - name: "Aaj Tak"
     url: "https://aajtak.in/rssfeeds/?id=home"

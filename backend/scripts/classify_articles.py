@@ -500,8 +500,14 @@ async def classify_article(
                 result["error_message"] = "RSS source not found"
                 return result
 
-        # Classify with LLM
-        article_text = article.extracted_text or ""
+        # Build article text from headline + description to minimise token usage.
+        # Fall back to full extracted text only when description is too brief.
+        description = (entry.description or "").strip()
+        if len(description) >= 50:
+            article_text = f"Headline: {entry.title}\n\nDescription: {description}"
+        else:
+            article_text = article.extracted_text or f"Headline: {entry.title}"
+
         llm_result = await classifier.classify(article_text, entry.title)
 
         if not llm_result:
