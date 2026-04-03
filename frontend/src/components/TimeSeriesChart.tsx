@@ -71,6 +71,14 @@ const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({
                 onClick(data[index].timestamp);
             }
         },
+        interaction: {
+            mode: 'index' as const,
+            intersect: false,
+        },
+        hover: {
+            mode: 'index' as const,
+            intersect: false,
+        },
         plugins: {
             legend: {
                 display: false,
@@ -84,11 +92,16 @@ const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({
                 },
             },
             tooltip: {
+                enabled: true,
                 backgroundColor: '#1a1a1a',
                 titleColor: '#FFFFFF',
                 bodyColor: '#FFFFFF',
                 borderColor: lineColor,
                 borderWidth: 1,
+                displayColors: false,
+                callbacks: {
+                    label: (ctx: any) => `${ctx.parsed.y} incidents`,
+                },
             },
         },
         scales: {
