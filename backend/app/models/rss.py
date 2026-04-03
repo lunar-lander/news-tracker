@@ -50,6 +50,9 @@ class RSSEntry(Base):
     )
     guid: Mapped[str] = mapped_column(Text, unique=True)
     title: Mapped[str] = mapped_column(Text)
+    headline_hash: Mapped[Optional[str]] = mapped_column(
+        String(32), unique=True, default=None
+    )  # MD5 of normalized title — cross-source dedup
     description: Mapped[Optional[str]] = mapped_column(Text, default=None)
     link: Mapped[str] = mapped_column(Text)
     published_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True))

@@ -36,6 +36,18 @@ def generate_content_hash(title: str, link: str) -> str:
     return hashlib.sha256(content.encode()).hexdigest()
 
 
+def generate_headline_hash(title: str) -> str:
+    """MD5 of normalised headline for cross-source dedup.
+
+    Strips whitespace, lowercases, removes non-alphanumeric chars
+    so that minor punctuation/spacing differences still match.
+    """
+    import re
+
+    normalized = re.sub(r"[^a-z0-9]", "", title.lower())
+    return hashlib.md5(normalized.encode()).hexdigest()
+
+
 async def seed_rss_sources():
     """Seed RSS sources from config into database"""
     logger.info("Seeding RSS sources from config...")
@@ -119,10 +131,13 @@ async def fetch_feed(source: RSSSource) -> List[Dict[str, Any]]:
                 entry.get("title", ""), entry.get("link", "")
             )
 
+            headline_hash = generate_headline_hash(entry.get("title", ""))
+
             entry_data: Dict[str, Any] = {
                 "source_id": source.id,
                 "guid": guid,
                 "title": entry.get("title", ""),
+                "headline_hash": headline_hash,
                 "description": entry.get("description") or entry.get("summary", ""),
                 "link": entry.get("link", ""),
                 "published_at": published_at,
@@ -162,12 +177,10 @@ async def store_entries(entries: List[Dict[str, Any]]) -> int:
     new_count = 0
     async with async_session_maker() as session:
         for entry_data in entries:
-            # Use INSERT ... ON CONFLICT DO NOTHING for deduplication
-            stmt = (
-                insert(RSSEntry)
-                .values(**entry_data)
-                .on_conflict_do_nothing(index_elements=["guid"])
-            )
+            # Dedup by guid (same feed item) AND by headline_hash (same
+            # headline across different feeds/sources).
+            # Try inserting; skip if either unique constraint fires.
+            stmt = insert(RSSEntry).values(**entry_data).on_conflict_do_nothing()
             result = await session.execute(stmt)
 
             if result.rowcount and result.rowcount > 0:  # type: ignore[union-attr]

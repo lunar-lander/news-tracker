@@ -38,6 +38,7 @@ CREATE TABLE rss_entries (
   source_id INTEGER REFERENCES rss_sources(id) ON DELETE CASCADE,
   guid TEXT UNIQUE NOT NULL,  -- RSS GUID
   title TEXT NOT NULL,
+  headline_hash VARCHAR(32) UNIQUE,  -- MD5 of normalized title for cross-source dedup
   description TEXT,
   link TEXT NOT NULL,
   published_at TIMESTAMPTZ NOT NULL,
