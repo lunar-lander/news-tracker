@@ -23,11 +23,11 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Intervals in seconds (configurable via env)
-FETCH_INTERVAL = int(os.environ.get("FETCH_INTERVAL", "900"))
+FETCH_INTERVAL = int(os.environ.get("FETCH_INTERVAL", "300"))
 SCRAPE_INTERVAL = int(os.environ.get("SCRAPE_INTERVAL", "300"))
-CLASSIFY_INTERVAL = int(os.environ.get("CLASSIFY_INTERVAL", "1800"))
-SCRAPE_BATCH = int(os.environ.get("SCRAPE_BATCH_SIZE", "50"))
-CLASSIFY_BATCH = int(os.environ.get("CLASSIFY_BATCH_SIZE", "20"))
+CLASSIFY_INTERVAL = int(os.environ.get("CLASSIFY_INTERVAL", "300"))
+SCRAPE_BATCH = int(os.environ.get("SCRAPE_BATCH_SIZE", "1000"))
+CLASSIFY_BATCH = int(os.environ.get("CLASSIFY_BATCH_SIZE", "200"))
 
 
 async def run_loop(name: str, coro, interval: int, **kwargs):
