@@ -116,7 +116,7 @@ class LLMClassifier:
 
             client: Any = genai.Client(api_key=api_key)
 
-            model_name = cfg.get("model", "gemini-2.5-flash")
+            model_name = cfg.get("model", "gemini-2.0-flash-lite")
             logger.info(f"Calling Gemini API with model {model_name}")
 
             response: Any = client.models.generate_content(

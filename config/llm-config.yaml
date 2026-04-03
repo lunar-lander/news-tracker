@@ -55,7 +55,7 @@ anthropic:
 google:
   provider: "google"
   models:
-    cheap: "gemini-2.5-flash"
+    cheap: "gemini-2.0-flash-lite"
     balanced: "gemini-2.5-flash"
     best: "gemini-2.5-pro"
   api_key: "${GOOGLE_API_KEY}"
@@ -63,7 +63,7 @@ google:
   temperature: 0.2
 
   rate_limits:
-    requests_per_minute: 60
+    requests_per_minute: 600
     concurrent_requests: 15
 
 # Cohere Configuration
