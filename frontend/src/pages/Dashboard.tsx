@@ -81,17 +81,20 @@ const Dashboard: React.FC = () => {
 
             {/* Grid of Category Tiles */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-auto">
-                {enabledTags.map((tag) => (
-                    <CategoryTile
-                        key={tag.id}
-                        tag={tag.id}
-                        label={tag.label}
-                        color={tag.color}
-                        data={tagData.get(tag.id)}
-                        loading={loading}
-                        onClick={() => setSelectedTag(tag)}
-                    />
-                ))}
+                {enabledTags
+                    .filter((tag) => loading || (tagData.get(tag.id)?.total ?? 0) > 0)
+                    .sort((a, b) => (tagData.get(b.id)?.total ?? 0) - (tagData.get(a.id)?.total ?? 0))
+                    .map((tag) => (
+                        <CategoryTile
+                            key={tag.id}
+                            tag={tag.id}
+                            label={tag.label}
+                            color={tag.color}
+                            data={tagData.get(tag.id)}
+                            loading={loading}
+                            onClick={() => setSelectedTag(tag)}
+                        />
+                    ))}
             </div>
 
             {enabledTags.length === 0 && !loading && (

@@ -33,12 +33,14 @@ const CategoryTile: React.FC<CategoryTileProps> = ({ tag: _tag, label, color, da
     const trendIcon = trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→';
     const trendColor = trend === 'up' ? '#FF6B6B' : trend === 'down' ? '#95E1D3' : '#AAAAAA';
 
-    // Determine tile size based on volume (simple: small, medium, large)
+    // Determine tile width based on volume — never span extra rows
     const getTileSize = () => {
-        if (totalCount > 100) return 'col-span-2 row-span-2';
-        if (totalCount > 50) return 'col-span-2 row-span-1';
-        return 'col-span-1 row-span-1';
+        if (totalCount > 100) return 'col-span-2';
+        if (totalCount > 50) return 'col-span-2';
+        return 'col-span-1';
     };
+
+    const chartHeight = totalCount > 100 ? 160 : 128;
 
     return (
         <div
@@ -69,9 +71,10 @@ const CategoryTile: React.FC<CategoryTileProps> = ({ tag: _tag, label, color, da
             ) : timeseriesData.length > 0 ? (
                 <TimeSeriesChart
                     data={timeseriesData}
-                    height={128}
+                    height={chartHeight}
                     showPoints={false}
                     fill={true}
+                    color={color}
                 />
             ) : (
                 <div className="h-32 flex items-center justify-center text-gray-500">
