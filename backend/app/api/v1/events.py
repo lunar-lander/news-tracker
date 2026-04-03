@@ -89,7 +89,10 @@ async def list_events(
     if tags:
         tag_list = [t.strip() for t in tags.split(",")]
         # Filter events that have any of the specified tags
-        query = query.where(NewsEvent.all_tags.overlap(tag_list))
+        # Use ANY() since .overlap() isn't available on Mapped ARRAY columns
+        query = query.where(
+            or_(*[NewsEvent.all_tags.any(tag) for tag in tag_list])
+        )
 
     if state:
         query = query.where(NewsEvent.state == state)
