@@ -74,9 +74,9 @@ const Dashboard: React.FC = () => {
             <div className="mb-8">
                 <h2 className="text-3xl font-bold text-white mb-2 text-center">
                 </h2>
-                <p className="text-gray-400 text-center">
+                {/* <p className="text-gray-400 text-center">
                     Real-time tracking of incidents across India
-                </p>
+                </p> */}
             </div>
 
             {/* Grid of Category Tiles */}

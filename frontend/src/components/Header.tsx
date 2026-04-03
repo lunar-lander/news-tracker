@@ -32,7 +32,7 @@ const Header: React.FC = () => {
     };
 
     return (
-        <header className="bg-gray-900 border-b border-gray-800 sticky top-0 z-50">
+        <header className="bg-[#0a0a0a] border-b border-[#1a1a1a] sticky top-0 z-50">
             <div className="container mx-auto px-4 py-4">
                 <div className="flex items-center justify-between flex-wrap gap-4">
                     {/* Logo and Title */}
@@ -50,14 +50,14 @@ const Header: React.FC = () => {
                                 <button
                                     key={days}
                                     onClick={() => handleQuickRange(days)}
-                                    className="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 text-white rounded transition-colors"
+                                    className="px-3 py-1 text-sm bg-[#141414] hover:bg-[#1a1a1a] text-white rounded transition-colors"
                                 >
                                     {days === 365 ? '1Y' : `${days}d`}
                                 </button>
                             ))}
                             <button
                                 onClick={handleYTD}
-                                className="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 text-white rounded transition-colors"
+                                className="px-3 py-1 text-sm bg-[#141414] hover:bg-[#1a1a1a] text-white rounded transition-colors"
                             >
                                 YTD
                             </button>
@@ -68,14 +68,14 @@ const Header: React.FC = () => {
                             type="date"
                             value={dateRange.start}
                             onChange={(e) => handleDateChange('start', e.target.value)}
-                            className="px-3 py-1 text-sm bg-gray-800 text-white border border-gray-700 rounded focus:outline-none focus:border-primary"
+                            className="px-3 py-1 text-sm bg-[#141414] text-white border border-[#222] rounded focus:outline-none focus:border-primary"
                         />
                         <span className="text-gray-500">to</span>
                         <input
                             type="date"
                             value={dateRange.end}
                             onChange={(e) => handleDateChange('end', e.target.value)}
-                            className="px-3 py-1 text-sm bg-gray-800 text-white border border-gray-700 rounded focus:outline-none focus:border-primary"
+                            className="px-3 py-1 text-sm bg-[#141414] text-white border border-[#222] rounded focus:outline-none focus:border-primary"
                         />
                     </div>
                 </div>

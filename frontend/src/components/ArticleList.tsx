@@ -59,7 +59,7 @@ const ArticleList: React.FC<ArticleListProps> = ({ tag, label, color, startDate,
         >
             {/* Panel */}
             <div
-                className="bg-gray-900 border border-gray-700 rounded-lg w-full max-w-3xl max-h-[80vh] flex flex-col"
+                className="bg-[#0a0a0a] border border-[#222] rounded-lg w-full max-w-3xl max-h-[80vh] flex flex-col"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
@@ -104,7 +104,7 @@ const ArticleList: React.FC<ArticleListProps> = ({ tag, label, color, startDate,
                                             <span>{formatDate(article.published_at)}</span>
                                             {article.state && <span>{article.state}</span>}
                                             {article.severity && (
-                                                <span className="px-1.5 py-0.5 rounded bg-gray-800 text-gray-400">
+                                                <span className="px-1.5 py-0.5 rounded bg-[#141414] text-gray-400">
                                                     {article.severity}
                                                 </span>
                                             )}
@@ -123,11 +123,11 @@ const ArticleList: React.FC<ArticleListProps> = ({ tag, label, color, startDate,
 
                 {/* Pagination */}
                 {total > limit && (
-                    <div className="flex items-center justify-between p-4 border-t border-gray-800">
+                    <div className="flex items-center justify-between p-4 border-t border-[#1a1a1a]">
                         <button
                             onClick={() => setOffset(Math.max(0, offset - limit))}
                             disabled={offset === 0}
-                            className="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 text-white rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                            className="px-3 py-1 text-sm bg-[#141414] hover:bg-[#1a1a1a] text-white rounded disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                             ← Prev
                         </button>
@@ -137,7 +137,7 @@ const ArticleList: React.FC<ArticleListProps> = ({ tag, label, color, startDate,
                         <button
                             onClick={() => setOffset(offset + limit)}
                             disabled={offset + limit >= total}
-                            className="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 text-white rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                            className="px-3 py-1 text-sm bg-[#141414] hover:bg-[#1a1a1a] text-white rounded disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                             Next →
                         </button>

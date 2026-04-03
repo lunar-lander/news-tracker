@@ -93,7 +93,7 @@ const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({
             },
             tooltip: {
                 enabled: true,
-                backgroundColor: '#1a1a1a',
+                backgroundColor: '#0a0a0a',
                 titleColor: '#FFFFFF',
                 bodyColor: '#FFFFFF',
                 borderColor: lineColor,
@@ -107,18 +107,18 @@ const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({
         scales: {
             x: {
                 grid: {
-                    color: '#333333',
+                    color: '#1a1a1a',
                 },
                 ticks: {
-                    color: '#AAAAAA',
+                    color: '#666666',
                 },
             },
             y: {
                 grid: {
-                    color: '#333333',
+                    color: '#1a1a1a',
                 },
                 ticks: {
-                    color: '#AAAAAA',
+                    color: '#666666',
                 },
                 beginAtZero: true,
             },

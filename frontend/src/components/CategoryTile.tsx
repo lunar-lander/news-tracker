@@ -44,7 +44,7 @@ const CategoryTile: React.FC<CategoryTileProps> = ({ tag: _tag, label, color, da
 
     return (
         <div
-            className={`${getTileSize()} bg-gray-900 border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-all cursor-pointer`}
+            className={`${getTileSize()} bg-[#0a0a0a] border border-[#1a1a1a] rounded-lg p-4 hover:border-[#222] transition-all cursor-pointer`}
             style={{ borderColor: `${color}33` }}
             onClick={onClick}
         >
