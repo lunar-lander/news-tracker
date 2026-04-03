@@ -61,10 +61,19 @@ EXCLUSION CRITERIA (mark relevant=false):
 - Film/book reviews
 
 LOCATION EXTRACTION:
-- Extract the Indian state name from the article (e.g., "Karnataka", "Uttar Pradesh", "Tamil Nadu")
+- Extract the Indian state where the incident occurred
+- Return EXACTLY ONE state — the primary location of the incident
+- If the article mentions multiple states, pick the one where the incident happened
+- Use the EXACT state name from this list (nothing else):
+  Andhra Pradesh, Arunachal Pradesh, Assam, Bihar, Chhattisgarh, Goa, Gujarat,
+  Haryana, Himachal Pradesh, Jharkhand, Karnataka, Kerala, Madhya Pradesh,
+  Maharashtra, Manipur, Meghalaya, Mizoram, Nagaland, Odisha, Punjab, Rajasthan,
+  Sikkim, Tamil Nadu, Telangana, Tripura, Uttar Pradesh, Uttarakhand, West Bengal,
+  Delhi, Jammu and Kashmir, Ladakh, Chandigarh, Puducherry, Andaman and Nicobar Islands,
+  Dadra and Nagar Haveli, Daman and Diu, Lakshadweep
+- Do NOT use abbreviations (not "UP", "MP", "AP", "JK")
+- Do NOT prefix with "state_" — just the name
 - Extract city name if mentioned
-- Look for patterns: "in [city]", "at [location], [state]", "[city] police", "[state] government"
-- Use proper state names (not abbreviations): "Uttar Pradesh" not "UP", "Madhya Pradesh" not "MP"
 - Return null if no state/city can be determined from the article
 
 ENTITY EXTRACTION:

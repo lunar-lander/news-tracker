@@ -19,6 +19,7 @@ router = APIRouter(prefix="/api/v1/events", tags=["events"])
 
 class NewsEventResponse(BaseModel):
     """News event response model"""
+
     id: int
     headline: str
     summary: Optional[str]
@@ -39,6 +40,7 @@ class NewsEventResponse(BaseModel):
 
 class EventDetailResponse(NewsEventResponse):
     """Detailed news event response with additional fields"""
+
     full_text: Optional[str] = None
     entities: Optional[dict] = None
     classification_confidence: Optional[float] = None
@@ -47,6 +49,7 @@ class EventDetailResponse(NewsEventResponse):
 
 class EventsListResponse(BaseModel):
     """List response with pagination"""
+
     data: List[NewsEventResponse]
     pagination: dict
 
@@ -90,9 +93,7 @@ async def list_events(
         tag_list = [t.strip() for t in tags.split(",")]
         # Filter events that have any of the specified tags
         # Use ANY() since .overlap() isn't available on Mapped ARRAY columns
-        query = query.where(
-            or_(*[NewsEvent.all_tags.any(tag) for tag in tag_list])
-        )
+        query = query.where(or_(*[NewsEvent.all_tags.any(tag) for tag in tag_list]))
 
     if state:
         query = query.where(NewsEvent.state == state)
@@ -110,9 +111,17 @@ async def list_events(
 
     # Apply sorting
     if sort == "published_at":
-        order_by = NewsEvent.published_at.desc() if order == "desc" else NewsEvent.published_at.asc()
+        order_by = (
+            NewsEvent.published_at.desc()
+            if order == "desc"
+            else NewsEvent.published_at.asc()
+        )
     elif sort == "incident_date":
-        order_by = NewsEvent.incident_date.desc() if order == "desc" else NewsEvent.incident_date.asc()
+        order_by = (
+            NewsEvent.incident_date.desc()
+            if order == "desc"
+            else NewsEvent.incident_date.asc()
+        )
     else:
         order_by = NewsEvent.published_at.desc()
 
@@ -129,7 +138,7 @@ async def list_events(
             "limit": limit,
             "offset": offset,
             "hasMore": offset + limit < total,
-        }
+        },
     )
 
 
@@ -142,10 +151,7 @@ async def get_event_detail(
     Get detailed information about a single news event
     """
     # Get event with related data
-    query = (
-        select(NewsEvent)
-        .where(NewsEvent.id == event_id)
-    )
+    query = select(NewsEvent).where(NewsEvent.id == event_id)
     result = await db.execute(query)
     event = result.scalar_one_or_none()
 
@@ -161,7 +167,9 @@ async def get_event_detail(
         article = None
 
     if event.classification_id:
-        classification_query = select(Classification).where(Classification.id == event.classification_id)
+        classification_query = select(Classification).where(
+            Classification.id == event.classification_id
+        )
         classification_result = await db.execute(classification_query)
         classification = classification_result.scalar_one_or_none()
     else:
@@ -182,7 +190,9 @@ async def get_event_detail(
         # Calculate average confidence
         if classification.tag_confidences:
             confidences = list(classification.tag_confidences.values())
-            response_data["classification_confidence"] = sum(confidences) / len(confidences) if confidences else None
+            response_data["classification_confidence"] = (
+                sum(confidences) / len(confidences) if confidences else None
+            )
         response_data["llm_model"] = classification.llm_model
 
     return EventDetailResponse(**response_data)

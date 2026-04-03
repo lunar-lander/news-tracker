@@ -285,6 +285,91 @@ class LLMClassifier:
         return None
 
 
+# Canonical Indian state/UT names for normalisation
+_VALID_STATES = {
+    "andhra pradesh",
+    "arunachal pradesh",
+    "assam",
+    "bihar",
+    "chhattisgarh",
+    "goa",
+    "gujarat",
+    "haryana",
+    "himachal pradesh",
+    "jharkhand",
+    "karnataka",
+    "kerala",
+    "madhya pradesh",
+    "maharashtra",
+    "manipur",
+    "meghalaya",
+    "mizoram",
+    "nagaland",
+    "odisha",
+    "punjab",
+    "rajasthan",
+    "sikkim",
+    "tamil nadu",
+    "telangana",
+    "tripura",
+    "uttar pradesh",
+    "uttarakhand",
+    "west bengal",
+    "delhi",
+    "jammu and kashmir",
+    "ladakh",
+    "chandigarh",
+    "puducherry",
+    "andaman and nicobar islands",
+    "dadra and nagar haveli",
+    "daman and diu",
+    "lakshadweep",
+}
+
+# Build a fast lookup: lowercase → title-cased canonical name
+_STATE_LOOKUP: Dict[str, str] = {}
+for _s in _VALID_STATES:
+    canonical = _s.title()
+    _STATE_LOOKUP[_s] = canonical
+    # Also handle "state_xxx" prefixes: "state_uttar_pradesh" -> "uttar pradesh"
+    _STATE_LOOKUP["state_" + _s.replace(" ", "_")] = canonical
+
+
+def _normalize_state(raw: Optional[str]) -> Optional[str]:
+    """Normalise an LLM-returned state value.
+
+    Handles:
+      - "state_delhi" → "Delhi"
+      - "Delhi, Karnataka, Telangana" → "Delhi" (first valid one)
+      - "kerala" → "Kerala"
+      - None / empty → None
+    """
+    if not raw or not raw.strip():
+        return None
+
+    raw = raw.strip()
+
+    # Direct hit (case-insensitive)
+    if raw.lower() in _STATE_LOOKUP:
+        return _STATE_LOOKUP[raw.lower()]
+
+    # Multi-value: split by comma, pick the first valid state
+    if "," in raw:
+        for part in raw.split(","):
+            part = part.strip().lower()
+            if part in _STATE_LOOKUP:
+                return _STATE_LOOKUP[part]
+
+    # "state_xxx" pattern not yet in lookup (shouldn't happen but be safe)
+    if raw.lower().startswith("state_"):
+        cleaned = raw[6:].replace("_", " ").strip().lower()
+        if cleaned in _STATE_LOOKUP:
+            return _STATE_LOOKUP[cleaned]
+
+    logger.warning("Unrecognised state value from LLM: %s", raw)
+    return raw.title()  # Best-effort title-case
+
+
 async def store_classification(
     article: Article, entry: RSSEntry, source: RSSSource, llm_result: Dict[str, Any]
 ) -> Optional[int]:
@@ -297,7 +382,7 @@ async def store_classification(
             summary = llm_result.get("summary", "")
             severity = llm_result.get("severity", "medium")
             incident_date_str = llm_result.get("incident_date")
-            state = llm_result.get("state")
+            state = _normalize_state(llm_result.get("state"))
             city = llm_result.get("city")
             district = llm_result.get("district")
             location_confidence = llm_result.get("location_confidence", 0.0)
