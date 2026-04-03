@@ -1,5 +1,7 @@
 # India News Tracker
 
+![app](./assets/app.png)
+
 Automated pipeline that fetches Indian news via RSS, scrapes full article content, and classifies articles using an LLM. Results are served through a FastAPI backend and displayed on a React dashboard.
 
 ## Quick Start
@@ -56,13 +58,13 @@ PORT=8000
 
 Set these in `.env` or directly in `docker-compose.yml`:
 
-| Variable             | Default | Description                          |
-| -------------------- | ------- | ------------------------------------ |
-| `FETCH_INTERVAL`     | 300     | Seconds between RSS fetch cycles     |
-| `SCRAPE_INTERVAL`    | 120     | Seconds between scrape cycles        |
-| `CLASSIFY_INTERVAL`  | 120     | Seconds between classify cycles      |
-| `SCRAPE_BATCH_SIZE`  | 50      | Articles per scrape batch            |
-| `CLASSIFY_BATCH_SIZE`| 20      | Articles per classify batch          |
+| Variable              | Default | Description                      |
+| --------------------- | ------- | -------------------------------- |
+| `FETCH_INTERVAL`      | 300     | Seconds between RSS fetch cycles |
+| `SCRAPE_INTERVAL`     | 120     | Seconds between scrape cycles    |
+| `CLASSIFY_INTERVAL`   | 120     | Seconds between classify cycles  |
+| `SCRAPE_BATCH_SIZE`   | 50      | Articles per scrape batch        |
+| `CLASSIFY_BATCH_SIZE` | 20      | Articles per classify batch      |
 
 ## Running Pipeline Steps Manually
 
@@ -78,26 +80,26 @@ docker compose exec api python -m scripts.classify_articles
 
 All in `config/`, mounted into containers at `/app/config`.
 
-| File                   | Purpose                            |
-| ---------------------- | ---------------------------------- |
-| `rss-sources.yaml`     | RSS feed URLs and metadata         |
-| `tags.yaml`            | Classification tags/categories     |
-| `filters.yaml`         | Article filtering rules            |
-| `llm-config.yaml`      | LLM provider and model settings    |
-| `prompts/`             | Prompt templates for LLM tasks     |
+| File               | Purpose                         |
+| ------------------ | ------------------------------- |
+| `rss-sources.yaml` | RSS feed URLs and metadata      |
+| `tags.yaml`        | Classification tags/categories  |
+| `filters.yaml`     | Article filtering rules         |
+| `llm-config.yaml`  | LLM provider and model settings |
+| `prompts/`         | Prompt templates for LLM tasks  |
 
 ## API Endpoints
 
-| Method | Path                         | Description                  |
-| ------ | ---------------------------- | ---------------------------- |
-| GET    | `/api/v1/events`             | List news events             |
-| GET    | `/api/v1/events/{id}`        | Single event detail          |
-| GET    | `/api/v1/events/timeline`    | Events grouped by date       |
-| GET    | `/api/v1/search`             | Full-text search             |
-| GET    | `/api/v1/analytics/overview` | Dashboard stats              |
-| GET    | `/api/v1/analytics/trends`   | Category/tag trends          |
-| GET    | `/api/v1/config/categories`  | Available categories         |
-| GET    | `/health`                    | Health check                 |
+| Method | Path                         | Description            |
+| ------ | ---------------------------- | ---------------------- |
+| GET    | `/api/v1/events`             | List news events       |
+| GET    | `/api/v1/events/{id}`        | Single event detail    |
+| GET    | `/api/v1/events/timeline`    | Events grouped by date |
+| GET    | `/api/v1/search`             | Full-text search       |
+| GET    | `/api/v1/analytics/overview` | Dashboard stats        |
+| GET    | `/api/v1/analytics/trends`   | Category/tag trends    |
+| GET    | `/api/v1/config/categories`  | Available categories   |
+| GET    | `/health`                    | Health check           |
 
 ## Development (without Docker)
 
