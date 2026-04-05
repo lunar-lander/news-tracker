@@ -556,46 +556,6 @@ technology:
     priority: "low"
 
 # ============================================================================
-# SPORTS
-# ============================================================================
-sports:
-  - name: "ESPN CricInfo"
-    url: "http://www.espncricinfo.com/rss/content/story/feeds/0.xml"
-    category: "sports"
-    language: "english"
-    region: "national"
-    refresh_interval: 300
-    enabled: true
-    priority: "high"
-
-  - name: "Sportskeeda"
-    url: "https://www.sportskeeda.com/feed"
-    category: "sports"
-    language: "english"
-    region: "national"
-    refresh_interval: 600
-    enabled: true
-    priority: "medium"
-
-  - name: "Sportstar"
-    url: "https://sportstar.thehindu.com/feeder/default.rss"
-    category: "sports"
-    language: "english"
-    region: "national"
-    refresh_interval: 600
-    enabled: true
-    priority: "medium"
-
-  - name: "CricketCountry"
-    url: "https://www.cricketcountry.com/feed"
-    category: "sports"
-    language: "english"
-    region: "national"
-    refresh_interval: 600
-    enabled: true
-    priority: "medium"
-
-# ============================================================================
 # HINDI NEWS
 # ============================================================================
 hindi_news:
