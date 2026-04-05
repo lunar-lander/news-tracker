@@ -30,6 +30,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+class HTTPFeedError(Exception):
+    """Raised when a feed returns an HTTP 4xx/5xx status."""
+
+    def __init__(self, status: int, url: str):
+        self.status = status
+        self.url = url
+        super().__init__(f"HTTP {status} for {url}")
+
+
 def generate_content_hash(title: str, link: str) -> str:
     """Generate a hash for deduplication"""
     content = f"{title}{link}"
@@ -100,6 +109,11 @@ async def fetch_feed(source: RSSSource) -> List[Dict[str, Any]]:
         feed: Any = await loop.run_in_executor(
             None, lambda: feedparser.parse(source.url)  # type: ignore[reportUnknownMemberType]
         )
+
+        # Check for HTTP errors — 4xx/5xx mean the feed is broken/gone
+        http_status = getattr(feed, "status", None)
+        if http_status and http_status >= 400:
+            raise HTTPFeedError(http_status, source.url)
 
         if feed.bozo:  # Check if feed has errors
             logger.warning(
@@ -214,6 +228,23 @@ async def update_source_status(source_id: int, success: bool):
             await session.commit()
 
 
+async def disable_source(source_id: int, http_status: int):
+    """Disable an RSS source after persistent HTTP error"""
+    async with async_session_maker() as session:
+        result = await session.execute(
+            select(RSSSource).where(RSSSource.id == source_id)
+        )
+        source = result.scalar_one_or_none()
+        if source:
+            source.enabled = False
+            source.meta_data = {
+                **(source.meta_data or {}),
+                "disabled_reason": f"HTTP {http_status}",
+                "disabled_at": datetime.now(timezone.utc).isoformat(),
+            }
+            await session.commit()
+
+
 async def fetch_all_feeds():
     """Fetch all enabled RSS feeds"""
     logger.info("Starting RSS feed fetch job...")
@@ -252,6 +283,14 @@ async def fetch_all_feeds():
 
                 total_processed += 1
                 total_new_entries += new_count
+
+            except HTTPFeedError as e:
+                logger.warning(
+                    f"Feed {source.name} returned HTTP {e.status} — disabling source"
+                )
+                await disable_source(source.id, e.status)
+                await update_source_status(source.id, success=False)
+                total_failed += 1
 
             except Exception as e:
                 logger.error(f"Failed to process source {source.name}: {e}")
