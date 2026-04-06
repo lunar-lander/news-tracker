@@ -25,15 +25,16 @@ for (const [geoName, dbNames] of Object.entries(GEOJSON_TO_DB)) {
 }
 
 // SVG dimensions
-const WIDTH = 500;
-const HEIGHT = 520;
+const WIDTH = 600;
+const HEIGHT = 680;
 
 interface IndiaMapProps {
     startDate: string;
     endDate: string;
+    onStateClick?: (stateName: string, dbStates: string[]) => void;
 }
 
-const IndiaMap: React.FC<IndiaMapProps> = ({ startDate, endDate }) => {
+const IndiaMap: React.FC<IndiaMapProps> = ({ startDate, endDate, onStateClick }) => {
     const [geoData, setGeoData] = useState<GeographicDataPoint[]>([]);
     const [hoveredState, setHoveredState] = useState<string | null>(null);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -123,8 +124,8 @@ const IndiaMap: React.FC<IndiaMapProps> = ({ startDate, endDate }) => {
         <div className="relative w-full flex justify-center mb-6">
             <svg
                 viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-                className="w-full max-w-2xl"
-                style={{ maxHeight: '480px' }}
+                className="w-full max-w-4xl"
+                style={{ maxHeight: '75vh' }}
                 onMouseMove={(e) => {
                     const rect = e.currentTarget.getBoundingClientRect();
                     setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
@@ -197,6 +198,12 @@ const IndiaMap: React.FC<IndiaMapProps> = ({ startDate, endDate }) => {
                             className="cursor-pointer transition-all duration-200"
                             onMouseEnter={() => setHoveredState(name)}
                             onMouseLeave={() => setHoveredState(null)}
+                            onClick={() => {
+                                if (count > 0 && onStateClick) {
+                                    const dbStates = GEOJSON_TO_DB[name] || [name];
+                                    onStateClick(name, dbStates);
+                                }
+                            }}
                         />
                     );
                 })}
@@ -226,6 +233,12 @@ const IndiaMap: React.FC<IndiaMapProps> = ({ startDate, endDate }) => {
                                 className="cursor-pointer"
                                 onMouseEnter={() => setHoveredState(name)}
                                 onMouseLeave={() => setHoveredState(null)}
+                                onClick={() => {
+                                    if (onStateClick) {
+                                        const dbStates = GEOJSON_TO_DB[name] || [name];
+                                        onStateClick(name, dbStates);
+                                    }
+                                }}
                             />
                             {radius > 8 && (
                                 <text

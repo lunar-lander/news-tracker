@@ -11,6 +11,7 @@ const Dashboard: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [tagData, setTagData] = useState<Map<string, BatchTimeseriesItem>>(new Map());
     const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
+    const [selectedState, setSelectedState] = useState<{ name: string; dbStates: string[] } | null>(null);
 
     // Fetch tags config
     useEffect(() => {
@@ -81,7 +82,11 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* India map */}
-            <IndiaMap startDate={dateRange.start} endDate={dateRange.end} />
+            <IndiaMap
+                startDate={dateRange.start}
+                endDate={dateRange.end}
+                onStateClick={(name, dbStates) => setSelectedState({ name, dbStates })}
+            />
 
             {/* Grid of Category Tiles */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-auto">
@@ -108,7 +113,7 @@ const Dashboard: React.FC = () => {
                 </div>
             )}
 
-            {/* Article list modal */}
+            {/* Article list modal — by tag */}
             {selectedTag && (
                 <ArticleList
                     tag={selectedTag.id}
@@ -117,6 +122,18 @@ const Dashboard: React.FC = () => {
                     startDate={dateRange.start}
                     endDate={dateRange.end}
                     onClose={() => setSelectedTag(null)}
+                />
+            )}
+
+            {/* Article list modal — by state (from map click) */}
+            {selectedState && (
+                <ArticleList
+                    state={selectedState.dbStates.join(',')}
+                    label={selectedState.name}
+                    color="#3dc9b0"
+                    startDate={dateRange.start}
+                    endDate={dateRange.end}
+                    onClose={() => setSelectedState(null)}
                 />
             )}
         </div>

@@ -3,7 +3,8 @@ import { eventsApi } from '../api/events';
 import type { NewsEvent } from '../types';
 
 interface ArticleListProps {
-    tag: string;
+    tag?: string;
+    state?: string;
     label: string;
     color: string;
     startDate: string;
@@ -11,7 +12,7 @@ interface ArticleListProps {
     onClose: () => void;
 }
 
-const ArticleList: React.FC<ArticleListProps> = ({ tag, label, color, startDate, endDate, onClose }) => {
+const ArticleList: React.FC<ArticleListProps> = ({ tag, state, label, color, startDate, endDate, onClose }) => {
     const [articles, setArticles] = useState<NewsEvent[]>([]);
     const [loading, setLoading] = useState(true);
     const [total, setTotal] = useState(0);
@@ -24,6 +25,7 @@ const ArticleList: React.FC<ArticleListProps> = ({ tag, label, color, startDate,
                 setLoading(true);
                 const response = await eventsApi.listEvents({
                     tags: tag,
+                    state,
                     start_date: startDate,
                     end_date: endDate,
                     limit,
@@ -41,7 +43,7 @@ const ArticleList: React.FC<ArticleListProps> = ({ tag, label, color, startDate,
         };
 
         fetchArticles();
-    }, [tag, startDate, endDate, offset]);
+    }, [tag, state, startDate, endDate, offset]);
 
     const formatDate = (dateStr: string) => {
         return new Date(dateStr).toLocaleDateString('en-IN', {
