@@ -87,6 +87,7 @@ services:
       - api
     links:
       - api
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
 
 volumes:
   postgres_data:

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { eventsApi } from '../api/events';
 import ArticleList from '../components/ArticleList';
 import CategoryTile from '../components/CategoryTile';
+import IndiaMap from '../components/IndiaMap';
 import { useAppStore } from '../stores/appStore';
 import type { BatchTimeseriesItem, Tag } from '../types';
 
@@ -78,6 +79,9 @@ const Dashboard: React.FC = () => {
                     Real-time tracking of incidents across India
                 </p> */}
             </div>
+
+            {/* India map */}
+            <IndiaMap startDate={dateRange.start} endDate={dateRange.end} />
 
             {/* Grid of Category Tiles */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-auto">
