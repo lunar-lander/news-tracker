@@ -10,7 +10,7 @@ import logging
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Tuple
 
 import httpx
 from bs4 import BeautifulSoup
@@ -36,19 +36,29 @@ HEADERS = {
 }
 
 
-async def fetch_article_html(client: httpx.AsyncClient, url: str) -> Optional[str]:
-    """Fetch HTML content from URL (async)"""
+async def fetch_article_html(
+    client: httpx.AsyncClient, url: str
+) -> Tuple[Optional[str], Optional[int]]:
+    """Fetch HTML content from URL (async).
+
+    Returns (html, status_code).  On success status_code is the HTTP code
+    (usually 200).  On failure html is None and status_code is the HTTP
+    code if available, otherwise None.
+    """
     try:
         logger.info(f"Fetching: {url}")
         response = await client.get(url, follow_redirects=True)
         response.raise_for_status()
-        return response.text
+        return response.text, response.status_code
     except httpx.TimeoutException:
         logger.error(f"Timeout fetching {url}")
-        return None
+        return None, None
+    except httpx.HTTPStatusError as e:
+        logger.error(f"HTTP {e.response.status_code} fetching {url}")
+        return None, e.response.status_code
     except httpx.HTTPError as e:
         logger.error(f"Error fetching {url}: {e}")
-        return None
+        return None, None
 
 
 def extract_text_from_html(html: str, url: str) -> Optional[str]:
@@ -144,15 +154,33 @@ async def scrape_article(entry: RSSEntry, client: httpx.AsyncClient) -> Dict[str
 
     try:
         # Fetch HTML (async)
-        html = await fetch_article_html(client, entry.link)
+        html, http_status = await fetch_article_html(client, entry.link)
         if not html:
-            result["error_message"] = "Failed to fetch HTML"
+            reason = f"HTTP {http_status}" if http_status else "Failed to fetch HTML"
+            result["error_message"] = reason
+            # Mark entry so we don't retry it forever
+            async with async_session_maker() as session:
+                entry_upd = await session.execute(
+                    select(RSSEntry).where(RSSEntry.id == entry.id)
+                )
+                obj = entry_upd.scalar_one_or_none()
+                if obj:
+                    obj.processing_status = "scraping_failed"
+                    await session.commit()
             return result
 
         # Extract text
         extracted_text = extract_text_from_html(html, entry.link)
         if not extracted_text:
             result["error_message"] = "Failed to extract text"
+            async with async_session_maker() as session:
+                entry_upd = await session.execute(
+                    select(RSSEntry).where(RSSEntry.id == entry.id)
+                )
+                obj = entry_upd.scalar_one_or_none()
+                if obj:
+                    obj.processing_status = "scraping_failed"
+                    await session.commit()
             return result
 
         # Detect language

@@ -93,7 +93,7 @@ logs-db:  ## Tail database logs
 # Quick start
 quickstart:  ## Quick start guide
 	@echo "===================================="
-	@echo "India News Tracker - Quick Start"
+	@echo "India News Observer - Quick Start"
 	@echo "===================================="
 	@echo ""
 	@echo "1. Copy .env.example to .env and fill in your API keys:"

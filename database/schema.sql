@@ -1,4 +1,4 @@
--- India News Tracker Database Schema
+-- India News Observer Database Schema
 -- PostgreSQL with TimescaleDB extension
 
 -- Enable TimescaleDB extension

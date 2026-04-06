@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
 Pipeline Worker
-Runs fetch → scrape → classify in a loop on a configurable interval.
+Runs fetch, scrape, and classify as independent concurrent loops.
+Each loop runs on its own interval. Classification polls frequently
+and no-ops when there is nothing to classify.
 Designed to run as a long-lived Docker container alongside the API.
 """
 
@@ -24,19 +26,25 @@ logger = logging.getLogger(__name__)
 
 # Intervals in seconds (configurable via env)
 FETCH_INTERVAL = int(os.environ.get("FETCH_INTERVAL", "300"))
-SCRAPE_INTERVAL = int(os.environ.get("SCRAPE_INTERVAL", "300"))
-CLASSIFY_INTERVAL = int(os.environ.get("CLASSIFY_INTERVAL", "300"))
-SCRAPE_BATCH = int(os.environ.get("SCRAPE_BATCH_SIZE", "1000"))
-CLASSIFY_BATCH = int(os.environ.get("CLASSIFY_BATCH_SIZE", "200"))
+SCRAPE_INTERVAL = int(os.environ.get("SCRAPE_INTERVAL", "60"))
+CLASSIFY_POLL = int(os.environ.get("CLASSIFY_POLL_INTERVAL", "10"))
+SCRAPE_BATCH = int(os.environ.get("SCRAPE_BATCH_SIZE", "100"))
+CLASSIFY_BATCH = int(os.environ.get("CLASSIFY_BATCH_SIZE", "50"))
 
 
-async def run_loop(name: str, coro, interval: int, **kwargs):
-    """Run a coroutine in a loop with a fixed interval."""
+async def run_loop(name: str, coro, interval: int, quiet: bool = False, **kwargs):
+    """Run a coroutine in a loop with a fixed interval.
+
+    If *quiet* is True, only log when the cycle actually did work
+    (useful for high-frequency polling loops like classify).
+    """
     while True:
         try:
-            logger.info(f"[{name}] Starting cycle")
-            await coro(**kwargs)
-            logger.info(f"[{name}] Cycle complete, sleeping {interval}s")
+            if not quiet:
+                logger.info(f"[{name}] Starting cycle")
+            result = await coro(**kwargs)
+            if not quiet:
+                logger.info(f"[{name}] Cycle complete, sleeping {interval}s")
         except Exception as e:
             logger.error(f"[{name}] Error: {e}", exc_info=True)
         await asyncio.sleep(interval)
@@ -52,7 +60,7 @@ async def main():
     logger.info(
         f"Worker starting — fetch every {FETCH_INTERVAL}s, "
         f"scrape every {SCRAPE_INTERVAL}s, "
-        f"classify every {CLASSIFY_INTERVAL}s"
+        f"classify polls every {CLASSIFY_POLL}s"
     )
 
     await asyncio.gather(
@@ -66,7 +74,8 @@ async def main():
         run_loop(
             "classify",
             classify_pending_articles,
-            CLASSIFY_INTERVAL,
+            CLASSIFY_POLL,
+            quiet=True,
             batch_size=CLASSIFY_BATCH,
         ),
     )

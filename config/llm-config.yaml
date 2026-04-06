@@ -1,4 +1,4 @@
-# LLM Configuration for India News Tracker
+# LLM Configuration for India News Observer
 # Last Updated: 2026-04-02
 #
 # Supports multiple LLM providers with automatic fallback.

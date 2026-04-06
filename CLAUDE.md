@@ -1,8 +1,8 @@
-# India News Tracker - Comprehensive Requirements Document
+# India News Observer - Comprehensive Requirements Document
 
 ## 1. Project Overview
 
-**Project Name:** India News Tracker
+**Project Name:** India News Observer
 
 **Tagline:** Building Data-Driven Social Consciousness Through Time-Series News Analysis
 
@@ -1228,7 +1228,7 @@ This project could be open-sourced to:
 
 **Repository Structure:**
 ```
-india-news-tracker/
+india-news-observer/
 ├── backend/                  # Python/FastAPI backend
 │   ├── app/                  # FastAPI application
 │   │   ├── api/              # API routes
@@ -1273,8 +1273,8 @@ india-news-tracker/
 ### Quick Start:
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/india-news-tracker.git
-cd india-news-tracker
+git clone https://github.com/yourusername/india-news-observer.git
+cd india-news-observer
 
 # Install dependencies
 make install

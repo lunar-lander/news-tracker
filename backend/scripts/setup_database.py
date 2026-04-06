@@ -124,7 +124,7 @@ async def seed_rss_sources():
 async def main():
     """Main setup entry point"""
     logger.info("=" * 60)
-    logger.info("India News Tracker - Database Setup")
+    logger.info("India News Observer - Database Setup")
     logger.info("=" * 60)
 
     # Step 1: Check connection

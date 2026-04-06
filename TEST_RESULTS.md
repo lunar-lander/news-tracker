@@ -1,4 +1,4 @@
-# India News Tracker - End-to-End Test Results
+# India News Observer - End-to-End Test Results
 
 **Test Date:** November 14, 2025  
 **Environment:** Development  
@@ -232,7 +232,7 @@ make dev-frontend
 
 **Overall Status:** ✅ ALL TESTS PASSED
 
-The India News Tracker is a **complete, working system** with:
+The India News Observer is a **complete, working system** with:
 - Real LLM classification (tested with live Claude API)
 - Comprehensive REST API (14 endpoints)
 - Production-ready frontend (pure black theme)

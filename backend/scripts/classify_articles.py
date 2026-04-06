@@ -544,7 +544,22 @@ async def classify_article(
 
 
 async def classify_pending_articles(batch_size: int = 20):
-    """Classify all pending articles"""
+    """Classify all pending articles.
+
+    Returns quickly if there is nothing to classify so it can be polled
+    at a high frequency without wasting resources.
+    """
+    # Quick-check: any work to do?
+    async with async_session_maker() as session:
+        result = await session.execute(
+            select(Article.id)
+            .join(RSSEntry, Article.rss_entry_id == RSSEntry.id)
+            .where(RSSEntry.processing_status == "scraped")
+            .limit(1)
+        )
+        if not result.scalar_one_or_none():
+            return  # nothing to classify — exit silently
+
     logger.info("Starting article classification job...")
 
     # Create processing log

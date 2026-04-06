@@ -1,5 +1,5 @@
 """
-Configuration loader for India News Tracker
+Configuration loader for India News Observer
 Loads configuration from YAML files and environment variables
 """
 

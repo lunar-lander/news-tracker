@@ -38,7 +38,7 @@ const Header: React.FC = () => {
                     {/* Logo and Title */}
                     <div className="flex items-center gap-4">
                         <h1 className="text-2xl font-bold text-white">
-                            <span className="text-primary">India</span> News Tracker
+                            <span className="text-primary">India</span> News Observer
                         </h1>
                     </div>
 

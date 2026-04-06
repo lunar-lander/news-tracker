@@ -1,4 +1,4 @@
-# Dashboard Configuration for India News Tracker
+# Dashboard Configuration for India News Observer
 # Last Updated: 2025-11-14
 #
 # Controls dashboard appearance, behavior, and features
@@ -8,7 +8,7 @@
 # ============================================================================
 
 general:
-  app_name: "India News Tracker"
+  app_name: "India News Observer"
   tagline: "Building Data-Driven Social Consciousness"
   default_timeframe: "30d"  # days
 

@@ -1,5 +1,5 @@
 """
-India News Tracker - FastAPI Application
+India News Observer - FastAPI Application
 """
 
 from contextlib import asynccontextmanager
@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 
 app = FastAPI(
-    title="India News Tracker API",
+    title="India News Observer API",
     description="API for tracking and analyzing news incidents across India",
     version="0.1.0",
     lifespan=lifespan,
@@ -54,7 +54,7 @@ app.add_middleware(
 async def root():
     """Root endpoint"""
     return {
-        "message": "India News Tracker API",
+        "message": "India News Observer API",
         "version": "0.1.0",
         "status": "running",
         "environment": settings.environment,

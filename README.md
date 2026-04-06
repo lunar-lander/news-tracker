@@ -1,4 +1,4 @@
-# India News Tracker
+# India News Observer
 
 ![app](./assets/app.png)
 
